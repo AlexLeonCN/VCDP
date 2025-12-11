@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<modelVersion>4.0.0</modelVersion>
+
+<!-- 一定要加这个 Spring Boot parent！否则所有 dependency 都要手动写 version -->
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.0</version> <!-- 或你喜欢的版本 -->
+</parent>
+
+<groupId>com.neonnexus</groupId>
+<artifactId>vcdm</artifactId>
+<version>1.0.0</version>
+<name>vcdm</name>
+<description>Vehicle communication design platform</description>
+<packaging>jar</packaging>
+
+<properties>
+    <java.version>21</java.version>
+</properties>
+
+<dependencies>
+
+    <!-- 这个依赖不需要写 version，因为父 pom 已经管理了 -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <!-- 你后续需要什么依赖都可以不写 version -->
+    <!-- 比如：Spring Data JPA、Validation、Redis 等等 -->
+</dependencies>
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
+    </plugins>
+</build>
+
+</project>

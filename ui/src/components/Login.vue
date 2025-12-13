@@ -1,77 +1,165 @@
 <template>
-  <el-card class="login-card">
-    <h2 class="title">登录</h2>
-    <el-form :model="form" ref="loginForm" @submit.prevent="login">
-      <el-form-item prop="username">
-        <el-input v-model="form.username" placeholder="用户名"></el-input>
-      </el-form-item>
+  <div class="login-page">
+    <!-- 新增的醒目网站标题 -->
+    <h1 class="site-title">VCDP-车辆通信设计平台</h1>
 
-      <el-form-item prop="password">
-        <el-input v-model="form.password" type="password" placeholder="密码"></el-input>
-      </el-form-item>
+    <el-card class="login-card">
+      <h2 class="title">登录</h2>
 
-      <div v-if="errorMsg" class="error-msg">{{ errorMsg }}</div>
+      <el-form 
+        :model="form" 
+        :rules="rules" 
+        ref="loginFormRef" 
+        @submit.prevent="handleLogin"
+        label-width="0"
+      >
+        <el-form-item prop="username">
+          <el-input 
+            v-model="form.username" 
+            placeholder="请输入用户名"
+            :prefix-icon="User"
+            clearable
+            @keyup.enter="handleLogin"
+          ></el-input>
+        </el-form-item>
 
-      <el-form-item>
-        <el-button type="primary" @click="login" style="width: 100%;">登录</el-button>
-      </el-form-item>
-    </el-form>
-  </el-card>
+        <el-form-item prop="password">
+          <el-input 
+            v-model="form.password" 
+            type="password" 
+            placeholder="请输入密码"
+            :prefix-icon="Lock"
+            show-password
+            clearable
+            @keyup.enter="handleLogin"
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button 
+            type="primary" 
+            @click="handleLogin" 
+            :loading="loading"
+            style="width: 100%;"
+          >
+            {{ loading ? '登录中...' : '登录' }}
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+  </div>
 </template>
 
 <script>
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
+import { User, Lock } from '@element-plus/icons-vue';
+import { useUserStore } from '../stores/user';
+
 export default {
-  data() {
-    return {
-      form: {
-        username: '',
-        password: ''
-      },
-      errorMsg: ''
+  name: 'Login',
+  setup() {
+    const router = useRouter();
+    const userStore = useUserStore();
+    const loginFormRef = ref(null);
+    const loading = ref(false);
+
+    const form = reactive({
+      username: '',
+      password: ''
+    });
+
+    // 表单验证规则
+    const rules = {
+      username: [
+        { required: true, message: '请输入用户名', trigger: 'blur' },
+        { min: 3, max: 20, message: '用户名长度在 3 到 20 个字符', trigger: 'blur' }
+      ],
+      password: [
+        { required: true, message: '请输入密码', trigger: 'blur' },
+        { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
+      ]
     };
-  },
-  methods: {
-    async login() {
-      this.errorMsg = '';
-      if (!this.form.username || !this.form.password) {
-        this.errorMsg = '用户名和密码不能为空';
-        return;
-      }
-      try {
-        const res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(this.form)
-        });
-        const data = await res.json();
-        if (data.success) {
-          this.$message({
-            message: '登录成功！',
-            type: 'success'
-          });
-          window.location.href = '/';
-        } else {
-          this.errorMsg = data.message;
+
+    const handleLogin = async () => {
+      if (!loginFormRef.value) return;
+
+      // 表单验证
+      await loginFormRef.value.validate(async (valid) => {
+        if (!valid) {
+          return false;
         }
-      } catch (e) {
-        this.errorMsg = '网络错误，请稍后重试';
-      }
-    }
+
+        loading.value = true;
+        try {
+          const result = await userStore.login(form.username, form.password);
+          
+          if (result.success) {
+            ElMessage.success(result.message || '登录成功！');
+            // 延迟一下确保状态已更新，然后跳转到首页
+            setTimeout(() => {
+              router.push('/home').catch(err => {
+                // 如果路由跳转失败，尝试强制跳转
+                console.error('路由跳转失败:', err);
+                window.location.href = '/home';
+              });
+            }, 100);
+          } else {
+            ElMessage.error(result.message || '登录失败，请检查用户名和密码');
+          }
+        } catch (error) {
+          console.error('登录异常:', error);
+          ElMessage.error(error.message || '登录失败，请稍后重试');
+        } finally {
+          loading.value = false;
+        }
+      });
+    };
+
+    return {
+      form,
+      rules,
+      loginFormRef,
+      loading,
+      handleLogin,
+      User,
+      Lock
+    };
   }
 };
 </script>
 
 <style scoped>
+/* 页面整体布局居中 */
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 80px;
+}
+
+/* 顶部平台名称 */
+.site-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #2d7eff;
+  letter-spacing: 2px;
+}
+
 .login-card {
   width: 360px;
   padding: 30px 20px;
   border-radius: 8px;
 }
+
 .title {
   text-align: center;
   margin-bottom: 30px;
   color: #303133;
 }
+
 .error-msg {
   color: #f56c6c;
   font-size: 13px;

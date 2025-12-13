@@ -1,0 +1,48 @@
+# H2 数据库文件
+data/
+*.mv.db
+*.trace.db
+*.lock.db
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+*.swp
+*.swo
+*~
+
+# Node
+ui/node_modules/
+ui/dist/
+ui/.env.local
+ui/.env.*.local
+
+# Spring Boot static resources (前端打包输出目录)
+src/main/resources/static/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+

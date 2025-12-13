@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neonnexus.vcdm.mapper.UserMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="UserResultMap" type="com.neonnexus.vcdm.entity.User">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="nickname" property="nickname"/>
+        <result column="email" property="email"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 根据用户名查询 -->
+    <select id="findByUsername" resultMap="UserResultMap">
+        SELECT id, username, password, nickname, email, status, create_time, update_time
+        FROM `user`
+        WHERE username = #{username}
+        AND status = 1
+    </select>
+
+    <!-- 根据用户名和密码查询 -->
+    <select id="findByUsernameAndPassword" resultMap="UserResultMap">
+        SELECT id, username, password, nickname, email, status, create_time, update_time
+        FROM `user`
+        WHERE username = #{username}
+        AND password = #{password}
+        AND status = 1
+    </select>
+
+    <!-- 根据 ID 查询 -->
+    <select id="findById" resultMap="UserResultMap">
+        SELECT id, username, password, nickname, email, status, create_time, update_time
+        FROM `user`
+        WHERE id = #{id}
+        AND status = 1
+    </select>
+
+    <!-- 插入用户 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `user` (username, password, nickname, email, status)
+        VALUES (#{username}, #{password}, #{nickname}, #{email}, #{status})
+    </insert>
+
+    <!-- 更新用户 -->
+    <update id="update">
+        UPDATE `user`
+        <set>
+            <if test="username != null">username = #{username},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除用户（逻辑删除，将状态设为 0） -->
+    <update id="deleteById">
+        UPDATE `user`
+        SET status = 0
+        WHERE id = #{id}
+    </update>
+
+</mapper>
+

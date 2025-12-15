@@ -45,13 +45,6 @@ public class Result<T> {
     }
 
     /**
-     * 失败响应（使用 ErrorConstant 中的错误定义，可自定义消息）
-     */
-    public static <T> Result<T> error(Pair<Integer, String> errorPair, String customMessage) {
-        return new Result<>(errorPair.getFirst(), false, customMessage, null);
-    }
-
-    /**
      * 失败响应（指定错误码和消息）
      */
     public static <T> Result<T> error(Integer code, String message) {

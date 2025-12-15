@@ -24,6 +24,9 @@ public class JwtUtil {
     @Value("${jwt.expiration:86400000}") // 默认 24 小时
     private Long expiration;
 
+    private static final String USER_ID_STR = "userId";
+    private static final String USER_NAME_STR = "username";
+
     /**
      * 生成 JWT Token
      * @param userId 用户ID
@@ -32,8 +35,8 @@ public class JwtUtil {
      */
     public String generateToken(Long userId, String username) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId);
-        claims.put("username", username);
+        claims.put(USER_ID_STR, userId);
+        claims.put(USER_NAME_STR, username);
         return createToken(claims);
     }
 
@@ -68,7 +71,7 @@ public class JwtUtil {
      */
     public Long getUserIdFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
-        Object userId = claims.get("userId");
+        Object userId = claims.get(USER_ID_STR);
         if (userId instanceof Integer) {
             return ((Integer) userId).longValue();
         }
@@ -80,7 +83,7 @@ public class JwtUtil {
      */
     public String getUsernameFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
-        return (String) claims.get("username");
+        return (String) claims.get(USER_NAME_STR);
     }
 
     /**

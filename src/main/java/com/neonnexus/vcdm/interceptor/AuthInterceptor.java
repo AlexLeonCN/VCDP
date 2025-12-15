@@ -54,7 +54,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         if (requiresRole != null) {
             Long userId = getUserIdFromToken(request);
             if (userId == null || !permissionService.hasRole(userId, requiresRole.value())) {
-                sendErrorResponse(response, ErrorConstant.InnerErrorConstant.FORBIDDEN, 
+                sendErrorResponse(response, ErrorConstant.CommonError.FORBIDDEN,
                     "权限不足：需要角色 " + String.join(", ", requiresRole.value()));
                 return false;
             }
@@ -65,7 +65,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         if (requiresPermission != null) {
             Long userId = getUserIdFromToken(request);
             if (userId == null || !permissionService.hasPermission(userId, requiresPermission.value())) {
-                sendErrorResponse(response, ErrorConstant.InnerErrorConstant.FORBIDDEN, 
+                sendErrorResponse(response, ErrorConstant.CommonError.FORBIDDEN,
                     "权限不足：需要权限 " + String.join(", ", requiresPermission.value()));
                 return false;
             }
@@ -81,7 +81,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         String token = getTokenFromRequest(request);
         
         if (token == null || !jwtUtil.validateToken(token)) {
-            sendErrorResponse(response, ErrorConstant.InnerErrorConstant.UNAUTHORIZED, 
+            sendErrorResponse(response, ErrorConstant.CommonError.UNAUTHORIZED,
                 "未登录或登录已过期，请重新登录");
             return false;
         }

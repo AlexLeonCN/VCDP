@@ -88,6 +88,16 @@ export async function login(username, password) {
 }
 
 /**
+ * 注册接口
+ */
+export async function register(username, password, email, nickname) {
+  return request('/register', {
+    method: 'POST',
+    body: JSON.stringify({ username, password, email, nickname })
+  });
+}
+
+/**
  * 退出登录接口（如果需要）
  */
 export async function logout() {

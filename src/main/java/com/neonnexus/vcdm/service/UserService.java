@@ -1,18 +1,24 @@
 package com.neonnexus.vcdm.service;
 
+import com.neonnexus.vcdm.entity.Role;
 import com.neonnexus.vcdm.entity.User;
+import com.neonnexus.vcdm.mapper.RoleMapper;
 import com.neonnexus.vcdm.mapper.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.neonnexus.vcdm.mapper.UserRoleMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 用户服务类
  */
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
+    private final RoleMapper roleMapper;
+    private final UserRoleMapper userRoleMapper;
 
     /**
      * 根据用户名查询用户
@@ -66,6 +72,58 @@ public class UserService {
             user.setStatus(1); // 默认启用
         }
         userMapper.insert(user);
+        return user;
+    }
+
+    /**
+     * 检查用户名是否存在
+     * @param username 用户名
+     * @return 如果存在返回 true
+     */
+    public boolean existsByUsername(String username) {
+        return userMapper.existsByUsername(username) != null;
+    }
+
+    /**
+     * 检查邮箱是否存在
+     * @param email 邮箱
+     * @return 如果存在返回 true
+     */
+    public boolean existsByEmail(String email) {
+        return userMapper.existsByEmail(email) != null;
+    }
+
+    /**
+     * 用户注册
+     * @param user 用户信息
+     * @return 注册的用户信息
+     */
+    @Transactional
+    public User register(User user) {
+        // 检查用户名是否已存在
+        if (existsByUsername(user.getUsername())) {
+            throw new RuntimeException("用户名已存在");
+        }
+
+        // 检查邮箱是否已存在
+        if (user.getEmail() != null && !user.getEmail().isEmpty() && existsByEmail(user.getEmail())) {
+            throw new RuntimeException("邮箱已被注册");
+        }
+
+        // 设置默认状态
+        if (user.getStatus() == null) {
+            user.setStatus(1); // 默认启用
+        }
+
+        // 创建用户
+        userMapper.insert(user);
+
+        // 分配默认角色（普通用户）
+        Role userRole = roleMapper.findByCode("user");
+        if (userRole != null) {
+            userRoleMapper.assignRole(user.getId(), userRole.getId());
+        }
+
         return user;
     }
 }

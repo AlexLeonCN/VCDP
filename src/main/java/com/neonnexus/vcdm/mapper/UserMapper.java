@@ -52,5 +52,19 @@ public interface UserMapper {
      * @return 影响行数
      */
     int deleteById(@Param("id") Long id);
+
+    /**
+     * 检查用户名是否存在
+     * @param username 用户名
+     * @return 用户信息，如果不存在返回 null
+     */
+    User existsByUsername(@Param("username") String username);
+
+    /**
+     * 检查邮箱是否存在
+     * @param email 邮箱
+     * @return 用户信息，如果不存在返回 null
+     */
+    User existsByEmail(@Param("email") String email);
 }
 

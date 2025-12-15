@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useUserStore } from '../stores/user';
 import Login from '../components/Login.vue';
+import Register from '../components/Register.vue';
 import Home from '../components/Home.vue';
 
 const routes = [
@@ -14,6 +15,14 @@ const routes = [
     component: Login,
     meta: {
       requiresGuest: true // 已登录用户不能访问登录页
+    }
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: Register,
+    meta: {
+      requiresGuest: true // 已登录用户不能访问注册页
     }
   },
   {
@@ -55,7 +64,7 @@ router.beforeEach((to, from, next) => {
       next();
     }
   }
-  // 检查是否已登录（已登录用户不能访问登录页）
+  // 检查是否已登录（已登录用户不能访问登录页和注册页）
   else if (to.meta.requiresGuest) {
     if (userStore.isAuthenticated) {
       console.log('已登录，跳转到首页');

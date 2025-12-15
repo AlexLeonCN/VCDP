@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { login as loginApi, logout as logoutApi, getUserInfo } from '../api';
+import { login as loginApi, register as registerApi, logout as logoutApi, getUserInfo } from '../api';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -24,7 +24,7 @@ export const useUserStore = defineStore('user', {
         // 判断登录成功：检查 success 字段，或者 HTTP 状态码为 200
         if (data.success !== false) {
           // 保存 token（如果返回了）
-          const token = data.token || data.data?.token || data.accessToken;
+          const token = data.data?.token || data.token || data.accessToken;
           if (token) {
             this.token = token;
             localStorage.setItem('token', token);
@@ -34,8 +34,12 @@ export const useUserStore = defineStore('user', {
           this.isLoggedIn = true;
 
           // 保存用户信息（如果返回了）
-          if (data.userInfo || data.data?.userInfo || data.user) {
-            this.userInfo = data.userInfo || data.data?.userInfo || data.user;
+          if (data.data?.userInfo) {
+            this.userInfo = data.data.userInfo;
+          } else if (data.userInfo) {
+            this.userInfo = data.userInfo;
+          } else if (data.user) {
+            this.userInfo = data.user;
           } else if (data.username) {
             // 如果只返回了用户名，也保存
             this.userInfo = { username: data.username };
@@ -47,6 +51,50 @@ export const useUserStore = defineStore('user', {
         }
       } catch (error) {
         console.error('登录错误:', error);
+        return { 
+          success: false, 
+          message: error.message || '网络错误，请稍后重试' 
+        };
+      }
+    },
+
+    /**
+     * 注册
+     */
+    async register(username, password, email, nickname) {
+      try {
+        const data = await registerApi(username, password, email, nickname);
+        
+        // 判断注册成功：检查 success 字段
+        if (data.success !== false) {
+          // 保存 token（如果返回了）
+          const token = data.data?.token || data.token || data.accessToken;
+          if (token) {
+            this.token = token;
+            localStorage.setItem('token', token);
+          }
+
+          // 标记为已登录
+          this.isLoggedIn = true;
+
+          // 保存用户信息（如果返回了）
+          if (data.data?.userInfo) {
+            this.userInfo = data.data.userInfo;
+          } else if (data.userInfo) {
+            this.userInfo = data.userInfo;
+          } else if (data.user) {
+            this.userInfo = data.user;
+          } else if (data.username) {
+            // 如果只返回了用户名，也保存
+            this.userInfo = { username: data.username };
+          }
+
+          return { success: true, message: data.message || '注册成功' };
+        } else {
+          return { success: false, message: data.message || '注册失败，请检查输入信息' };
+        }
+      } catch (error) {
+        console.error('注册错误:', error);
         return { 
           success: false, 
           message: error.message || '网络错误，请稍后重试' 

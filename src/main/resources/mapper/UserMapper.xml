@@ -65,5 +65,19 @@
         WHERE id = #{id}
     </update>
 
+    <!-- 检查用户名是否存在 -->
+    <select id="existsByUsername" resultMap="UserResultMap">
+        SELECT id, username, password, nickname, email, status, create_time, update_time
+        FROM `user`
+        WHERE username = #{username}
+    </select>
+
+    <!-- 检查邮箱是否存在 -->
+    <select id="existsByEmail" resultMap="UserResultMap">
+        SELECT id, username, password, nickname, email, status, create_time, update_time
+        FROM `user`
+        WHERE email = #{email}
+    </select>
+
 </mapper>
 

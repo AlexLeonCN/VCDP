@@ -45,6 +45,13 @@
             {{ loading ? '登录中...' : '登录' }}
           </el-button>
         </el-form-item>
+
+        <el-form-item>
+          <div class="link-text">
+            还没有账号？
+            <el-link type="primary" @click="goToRegister">立即注册</el-link>
+          </div>
+        </el-form-item>
       </el-form>
     </el-card>
   </div>
@@ -78,7 +85,7 @@ export default {
       ],
       password: [
         { required: true, message: '请输入密码', trigger: 'blur' },
-        { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
+        { min: 8, max: 20, message: '密码长度在 8 到 20 个字符', trigger: 'blur' }
       ]
     };
 
@@ -117,12 +124,17 @@ export default {
       });
     };
 
+    const goToRegister = () => {
+      router.push('/register');
+    };
+
     return {
       form,
       rules,
       loginFormRef,
       loading,
       handleLogin,
+      goToRegister,
       User,
       Lock
     };
@@ -165,5 +177,16 @@ export default {
   font-size: 13px;
   text-align: center;
   margin-bottom: 10px;
+}
+
+.link-text {
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  color: #606266;
+}
+
+.link-text .el-link {
+  margin-left: 5px;
 }
 </style>

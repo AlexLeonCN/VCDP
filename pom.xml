@@ -71,6 +71,13 @@
 
     <!-- 你后续需要什么依赖都可以不写 version -->
     <!-- 比如：Validation、Redis 等等 -->
+
+    <!-- Spring Boot Test Starter (包含 JUnit 5, Mockito, AssertJ 等) -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
 </dependencies>
 
 <build>

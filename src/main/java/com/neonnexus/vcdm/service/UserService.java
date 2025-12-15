@@ -5,6 +5,7 @@ import com.neonnexus.vcdm.entity.User;
 import com.neonnexus.vcdm.mapper.RoleMapper;
 import com.neonnexus.vcdm.mapper.UserMapper;
 import com.neonnexus.vcdm.mapper.UserRoleMapper;
+import com.neonnexus.vcdm.util.PasswordUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,9 +43,8 @@ public class UserService {
             return null;
         }
 
-        // 密码验证（当前使用明文比较，后续可以升级为 BCrypt 加密）
-        // TODO: 后续应该使用 BCryptPasswordEncoder 进行密码验证
-        if (user.getPassword() != null && user.getPassword().equals(password)) {
+        // 使用密码工具验证密码
+        if (user.getPassword() != null && PasswordUtil.matches(password, user.getPassword())) {
             // 验证成功，清除密码信息后返回（不返回密码字段）
             user.setPassword(null);
             return user;
@@ -108,6 +108,12 @@ public class UserService {
         // 检查邮箱是否已存在
         if (user.getEmail() != null && !user.getEmail().isEmpty() && existsByEmail(user.getEmail())) {
             throw new RuntimeException("邮箱已被注册");
+        }
+
+        // 使用密码工具加密密码
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            String encodedPassword = PasswordUtil.encode(user.getPassword());
+            user.setPassword(encodedPassword);
         }
 
         // 设置默认状态

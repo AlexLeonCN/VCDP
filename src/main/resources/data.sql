@@ -1,14 +1,13 @@
 -- 初始化数据脚本
 -- 注意：H2 数据库使用 MERGE 语句来避免重复插入
 
--- 插入默认管理员用户（密码：123456）
--- 暂时使用明文密码，后续可以添加 BCrypt 加密
+-- 插入默认管理员用户（密码：alex940712，已使用 SHA-256 + 盐值加密）
 MERGE INTO `user` (username, password, nickname, email, status) KEY(username)
-VALUES ('admin', '123456', '管理员', 'alex.leon@aliyun.com', 1);
+VALUES ('admin', 'YWRtaW5TYWx0MjAyNFZDRFA=:8liNtsD3wwTni7uYjOOiC5tPr8CYYzsv8nDX7K+IkOc=', '管理员', 'alex.leon@aliyun.com', 1);
 
--- 插入测试用户（密码：test123）
+-- 插入测试用户（密码：test1234，已使用 SHA-256 + 盐值加密）
 MERGE INTO `user` (username, password, nickname, email, status) KEY(username)
-VALUES ('test', 'test123', '测试用户', 'test@vcdp.com', 1);
+VALUES ('test', 'dGVzdFNhbHQyMDI0VkNEUDEy:LQ+E/0I/6rfs2N9nt5TLeelohxo8P0q6ZsUWvnoghTc=', '测试用户', 'test@vcdp.com', 1);
 
 -- 插入角色数据
 MERGE INTO `role` (code, name, description, status) KEY(code)

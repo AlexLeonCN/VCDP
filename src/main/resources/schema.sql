@@ -3,9 +3,9 @@
 -- 用户表
 CREATE TABLE IF NOT EXISTS `user` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
-    `username` VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
+    `user_name` VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
     `password` VARCHAR(255) NOT NULL COMMENT '密码（加密后）',
-    `nickname` VARCHAR(100) COMMENT '昵称',
+    `nick_name` VARCHAR(100) COMMENT '昵称',
     `email` VARCHAR(100) COMMENT '邮箱',
     `status` TINYINT DEFAULT 1 COMMENT '状态：1-启用，0-禁用',
     `create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',

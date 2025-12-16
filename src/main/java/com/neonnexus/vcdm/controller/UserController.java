@@ -24,7 +24,7 @@ public class UserController {
     @PostMapping("/api/login")
     public Result<Map<String, Object>> login(@RequestBody LoginInfo loginInfo) {
         if (loginInfo.getUserName() == null || loginInfo.getPassword() == null) {
-            return Result.error(ErrorConstant.LoginRegisterErr.USER_NAME_OR_PASSWORD_NONE_ERR);
+            return Result.error(ErrorConstant.LoginErr.USER_NAME_OR_PASSWORD_NONE_ERR);
         }
 
         // 使用数据库验证登录
@@ -32,18 +32,18 @@ public class UserController {
         
         if (user != null) {
             // 生成 JWT Token
-            String token = jwtUtil.generateToken(user.getId(), user.getUsername());
+            String token = jwtUtil.generateToken(user.getId(), user.getUserName());
             
             Map<String, Object> data = new HashMap<>();
             data.put("token", token);
             data.put("userInfo", Map.of(
-                "id", user.getId(),
-                "username", user.getUsername(),
-                "nickname", user.getNickname() != null ? user.getNickname() : ""
+                    "id", user.getId(),
+                    "username", user.getUserName(),
+                    "nickname", user.getNickName() != null ? user.getNickName() : ""
             ));
             return Result.success("登录成功", data);
         } else {
-            return Result.error(ErrorConstant.LoginRegisterErr.WRONG_USER_NAME_OR_PASSWORD);
+            return Result.error(ErrorConstant.LoginErr.WRONG_USER_NAME_OR_PASSWORD);
         }
     }
 
@@ -56,41 +56,41 @@ public class UserController {
 
         // 参数验证
         if (username == null || username.trim().isEmpty()) {
-            return Result.error(ErrorConstant.LoginRegisterErr.USER_NAME_NONE_ERR);
+            return Result.error(ErrorConstant.RegisterErr.USER_NAME_NONE_ERR);
         }
         if (password == null || password.trim().isEmpty()) {
-            return Result.error(ErrorConstant.LoginRegisterErr.PASSWORD_NONE_ERR);
+            return Result.error(ErrorConstant.RegisterErr.PASSWORD_NONE_ERR);
         }
         if (email == null || email.trim().isEmpty()) {
-            return Result.error(ErrorConstant.LoginRegisterErr.EMAIL_NONE_ERR);
+            return Result.error(ErrorConstant.RegisterErr.EMAIL_NONE_ERR);
         }
 
         try {
             // 创建用户对象
             User user = new User();
-            user.setUsername(username.trim());
+            user.setUserName(username.trim());
             user.setPassword(password);
             user.setEmail(email.trim());
-            user.setNickname(nickname != null ? nickname.trim() : null);
+            user.setNickName(nickname != null ? nickname.trim() : null);
 
             // 注册用户（会自动分配普通用户角色）
             User registeredUser = userService.register(user);
 
             // 生成 JWT Token
-            String token = jwtUtil.generateToken(registeredUser.getId(), registeredUser.getUsername());
+            String token = jwtUtil.generateToken(registeredUser.getId(), registeredUser.getUserName());
 
             Map<String, Object> data = new HashMap<>();
             data.put("token", token);
             data.put("userInfo", Map.of(
                 "id", registeredUser.getId(),
-                "username", registeredUser.getUsername(),
-                "nickname", registeredUser.getNickname() != null ? registeredUser.getNickname() : ""
+                "username", registeredUser.getUserName(),
+                "nickname", registeredUser.getNickName() != null ? registeredUser.getNickName() : ""
             ));
             return Result.success("注册成功", data);
         } catch (RuntimeException e) {
-            return Result.error(ErrorConstant.LoginRegisterErr.REGISTER_EXCEPTION_ERR);
+            return Result.error(ErrorConstant.RegisterErr.REGISTER_EXCEPTION_ERR);
         } catch (Exception e) {
-            return Result.error(ErrorConstant.LoginRegisterErr.REGISTER_EXCEPTION_ERR);
+            return Result.error(ErrorConstant.RegisterErr.REGISTER_EXCEPTION_ERR);
         }
     }
 }

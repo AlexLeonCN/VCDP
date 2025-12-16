@@ -9,14 +9,14 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Pair<K, V> {
-    private K first;
-    private V second;
+    private K key;
+    private V value;
 
     /**
      * 创建 Pair 实例
      */
-    public static <K, V> Pair<K, V> of(K first, V second) {
-        return new Pair<>(first, second);
+    public static <K, V> Pair<K, V> of(K key, V value) {
+        return new Pair<>(key, value);
     }
 }
 

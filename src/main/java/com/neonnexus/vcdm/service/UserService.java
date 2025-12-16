@@ -27,7 +27,7 @@ public class UserService {
      * @return 用户信息
      */
     public User findByUsername(String username) {
-        return userMapper.findByUsername(username);
+        return userMapper.findByUserName(username);
     }
 
     /**
@@ -38,7 +38,7 @@ public class UserService {
      */
     public User login(String username, String password) {
         // 先根据用户名查询用户
-        User user = userMapper.findByUsername(username);
+        User user = userMapper.findByUserName(username);
         if (user == null) {
             return null;
         }
@@ -81,7 +81,7 @@ public class UserService {
      * @return 如果存在返回 true
      */
     public boolean existsByUsername(String username) {
-        return userMapper.existsByUsername(username) != null;
+        return userMapper.existsByUserName(username) != null;
     }
 
     /**
@@ -101,7 +101,7 @@ public class UserService {
     @Transactional
     public User register(User user) {
         // 检查用户名是否已存在
-        if (existsByUsername(user.getUsername())) {
+        if (existsByUsername(user.getUserName())) {
             throw new RuntimeException("用户名已存在");
         }
 

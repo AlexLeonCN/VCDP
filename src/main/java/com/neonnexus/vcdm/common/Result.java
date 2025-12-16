@@ -41,7 +41,7 @@ public class Result<T> {
      * 失败响应（使用 ErrorConstant 中的错误定义）
      */
     public static <T> Result<T> error(Pair<Integer, String> errorPair) {
-        return new Result<>(errorPair.getFirst(), false, errorPair.getSecond(), null);
+        return new Result<>(errorPair.getKey(), false, errorPair.getValue(), null);
     }
 
     /**

@@ -5,6 +5,7 @@ import com.neonnexus.vcdm.annotation.RequiresLogin;
 import com.neonnexus.vcdm.annotation.RequiresPermission;
 import com.neonnexus.vcdm.annotation.RequiresRole;
 import com.neonnexus.vcdm.common.ErrorConstant;
+import com.neonnexus.vcdm.common.Pair;
 import com.neonnexus.vcdm.common.Result;
 import com.neonnexus.vcdm.service.PermissionService;
 import com.neonnexus.vcdm.util.JwtUtil;
@@ -54,8 +55,8 @@ public class AuthInterceptor implements HandlerInterceptor {
         if (requiresRole != null) {
             Long userId = getUserIdFromToken(request);
             if (userId == null || !permissionService.hasRole(userId, requiresRole.value())) {
-                sendErrorResponse(response, ErrorConstant.CommonError.FORBIDDEN,
-                    "权限不足：需要角色 " + String.join(", ", requiresRole.value()));
+                sendErrorResponse(response, ErrorConstant.CommonErrorCode.FORBIDDEN, ErrorConstant.AuthErr.ROLE_ERR.getKey(),
+                        ErrorConstant.AuthErr.ROLE_ERR.getValue() + ": 需要角色 " + String.join(", ", requiresRole.value()));
                 return false;
             }
         }
@@ -65,8 +66,8 @@ public class AuthInterceptor implements HandlerInterceptor {
         if (requiresPermission != null) {
             Long userId = getUserIdFromToken(request);
             if (userId == null || !permissionService.hasPermission(userId, requiresPermission.value())) {
-                sendErrorResponse(response, ErrorConstant.CommonError.FORBIDDEN,
-                    "权限不足：需要权限 " + String.join(", ", requiresPermission.value()));
+                sendErrorResponse(response, ErrorConstant.CommonErrorCode.FORBIDDEN, ErrorConstant.AuthErr.PERMISSION_ERR.getKey(),
+                        ErrorConstant.AuthErr.PERMISSION_ERR.getValue() + "：需要权限 " + String.join(", ", requiresPermission.value()));
                 return false;
             }
         }
@@ -81,8 +82,8 @@ public class AuthInterceptor implements HandlerInterceptor {
         String token = getTokenFromRequest(request);
         
         if (token == null || !jwtUtil.validateToken(token)) {
-            sendErrorResponse(response, ErrorConstant.CommonError.UNAUTHORIZED,
-                "未登录或登录已过期，请重新登录");
+            sendErrorResponse(response, ErrorConstant.CommonErrorCode.UNAUTHORIZED,
+                ErrorConstant.AuthErr.NOT_LOGIN_OR_OVER_TIME);
             return false;
         }
         
@@ -127,14 +128,28 @@ public class AuthInterceptor implements HandlerInterceptor {
      * 发送错误响应（使用 ErrorConstant 中的错误定义）
      * 使用 ObjectMapper 序列化，避免手动拼接 JSON 的问题
      */
-    private void sendErrorResponse(HttpServletResponse response, com.neonnexus.vcdm.common.Pair<Integer, String> errorPair, String customMessage) throws IOException {
-        response.setStatus(errorPair.getFirst());
+    private void sendErrorResponse(HttpServletResponse response, int status, int code, String message) throws IOException {
+        response.setStatus(status);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        
+
         // 使用统一的 Result 响应格式，使用 ErrorConstant 中的错误码
-        Result<Object> result = Result.error(errorPair, customMessage);
-        
+        Result<Object> result = Result.error(code, message);
+
+        // 使用 ObjectMapper 序列化，自动处理特殊字符转义
+        String json = objectMapper.writeValueAsString(result);
+        response.getWriter().write(json);
+        response.getWriter().flush();
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, int status, Pair<Integer, String> pair) throws IOException {
+        response.setStatus(status);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+
+        // 使用统一的 Result 响应格式，使用 ErrorConstant 中的错误码
+        Result<Object> result = Result.error(pair);
+
         // 使用 ObjectMapper 序列化，自动处理特殊字符转义
         String json = objectMapper.writeValueAsString(result);
         response.getWriter().write(json);

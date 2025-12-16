@@ -16,17 +16,17 @@ import java.time.LocalDateTime;
 @ToString(exclude = "password") // 排除密码字段，避免在日志中泄露
 public class User {
     private Long id;
-    private String username;
+    private String userName;
     private String password;
-    private String nickname;
+    private String nickName;
     private String email;
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 
     // 便捷构造函数
-    public User(String username, String password) {
-        this.username = username;
+    public User(String userName, String password) {
+        this.userName = userName;
         this.password = password;
     }
 }

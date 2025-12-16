@@ -5,9 +5,9 @@
     <!-- 结果映射 -->
     <resultMap id="UserResultMap" type="com.neonnexus.vcdm.entity.User">
         <id column="id" property="id"/>
-        <result column="username" property="username"/>
+        <result column="user_name" property="userName"/>
         <result column="password" property="password"/>
-        <result column="nickname" property="nickname"/>
+        <result column="nick_name" property="nickName"/>
         <result column="email" property="email"/>
         <result column="status" property="status"/>
         <result column="create_time" property="createTime"/>
@@ -15,25 +15,25 @@
     </resultMap>
 
     <!-- 根据用户名查询 -->
-    <select id="findByUsername" resultMap="UserResultMap">
-        SELECT id, username, password, nickname, email, status, create_time, update_time
+    <select id="findByUserName" resultMap="UserResultMap">
+        SELECT id, user_name, password, nick_name, email, status, create_time, update_time
         FROM `user`
-        WHERE username = #{username}
+        WHERE user_name = #{userName}
         AND status = 1
     </select>
 
     <!-- 根据用户名和密码查询 -->
-    <select id="findByUsernameAndPassword" resultMap="UserResultMap">
-        SELECT id, username, password, nickname, email, status, create_time, update_time
+    <select id="findByUserNameAndPassword" resultMap="UserResultMap">
+        SELECT id, user_name, password, nick_name, email, status, create_time, update_time
         FROM `user`
-        WHERE username = #{username}
+        WHERE user_name = #{userName}
         AND password = #{password}
         AND status = 1
     </select>
 
     <!-- 根据 ID 查询 -->
     <select id="findById" resultMap="UserResultMap">
-        SELECT id, username, password, nickname, email, status, create_time, update_time
+        SELECT id, user_name, password, nick_name, email, status, create_time, update_time
         FROM `user`
         WHERE id = #{id}
         AND status = 1
@@ -41,17 +41,17 @@
 
     <!-- 插入用户 -->
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO `user` (username, password, nickname, email, status)
-        VALUES (#{username}, #{password}, #{nickname}, #{email}, #{status})
+        INSERT INTO `user` (user_name, password, nick_name, email, status)
+        VALUES (#{userName}, #{password}, #{nickName}, #{email}, #{status})
     </insert>
 
     <!-- 更新用户 -->
     <update id="update">
         UPDATE `user`
         <set>
-            <if test="username != null">username = #{username},</if>
+            <if test="userName != null">user_name = #{userName},</if>
             <if test="password != null">password = #{password},</if>
-            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="nickName != null">nick_name = #{nickName},</if>
             <if test="email != null">email = #{email},</if>
             <if test="status != null">status = #{status},</if>
         </set>
@@ -66,15 +66,15 @@
     </update>
 
     <!-- 检查用户名是否存在 -->
-    <select id="existsByUsername" resultMap="UserResultMap">
-        SELECT id, username, password, nickname, email, status, create_time, update_time
+    <select id="existsByUserName" resultMap="UserResultMap">
+        SELECT id, user_name, password, nick_name, email, status, create_time, update_time
         FROM `user`
-        WHERE username = #{username}
+        WHERE user_name = #{userName}
     </select>
 
     <!-- 检查邮箱是否存在 -->
     <select id="existsByEmail" resultMap="UserResultMap">
-        SELECT id, username, password, nickname, email, status, create_time, update_time
+        SELECT id, user_name, password, nick_name, email, status, create_time, update_time
         FROM `user`
         WHERE email = #{email}
     </select>

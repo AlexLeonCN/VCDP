@@ -1,7 +1,7 @@
 package com.neonnexus.vcdm.service;
 
 import com.neonnexus.vcdm.common.ErrorConstant;
-import com.neonnexus.vcdm.common.VCDPException;
+import com.neonnexus.vcdm.exception.VCDPException;
 import com.neonnexus.vcdm.entity.po.Role;
 import com.neonnexus.vcdm.entity.po.User;
 import com.neonnexus.vcdm.mapper.RoleMapper;

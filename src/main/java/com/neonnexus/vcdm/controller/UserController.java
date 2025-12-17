@@ -2,7 +2,7 @@ package com.neonnexus.vcdm.controller;
 
 import com.neonnexus.vcdm.common.ErrorConstant;
 import com.neonnexus.vcdm.common.Result;
-import com.neonnexus.vcdm.common.VCDPException;
+import com.neonnexus.vcdm.exception.VCDPException;
 import com.neonnexus.vcdm.entity.po.User;
 import com.neonnexus.vcdm.entity.vo.LoginInfo;
 import com.neonnexus.vcdm.service.UserService;

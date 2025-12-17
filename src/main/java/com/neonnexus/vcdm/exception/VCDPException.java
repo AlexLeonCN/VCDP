@@ -1,5 +1,6 @@
-package com.neonnexus.vcdm.common;
+package com.neonnexus.vcdm.exception;
 
+import com.neonnexus.vcdm.common.Pair;
 import lombok.Data;
 
 @Data

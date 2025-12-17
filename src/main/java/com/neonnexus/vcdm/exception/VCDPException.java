@@ -1,9 +1,7 @@
 package com.neonnexus.vcdm.exception;
 
 import com.neonnexus.vcdm.common.Pair;
-import lombok.Data;
 
-@Data
 public class VCDPException extends RuntimeException {
     private Integer code;
     private String message;
@@ -18,5 +16,13 @@ public class VCDPException extends RuntimeException {
         super(pair.getValue());
         this.code = pair.getKey();
         this.message = pair.getValue();
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

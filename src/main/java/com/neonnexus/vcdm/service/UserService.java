@@ -1,5 +1,7 @@
 package com.neonnexus.vcdm.service;
 
+import com.neonnexus.vcdm.common.ErrorConstant;
+import com.neonnexus.vcdm.common.VCDPException;
 import com.neonnexus.vcdm.entity.po.Role;
 import com.neonnexus.vcdm.entity.po.User;
 import com.neonnexus.vcdm.mapper.RoleMapper;
@@ -102,12 +104,12 @@ public class UserService {
     public User register(User user) {
         // 检查用户名是否已存在
         if (existsByUsername(user.getUserName())) {
-            throw new RuntimeException("用户名已存在");
+            throw new VCDPException(ErrorConstant.RegisterErr.USER_NAME_ALREADY_EXIST);
         }
 
         // 检查邮箱是否已存在
         if (user.getEmail() != null && !user.getEmail().isEmpty() && existsByEmail(user.getEmail())) {
-            throw new RuntimeException("邮箱已被注册");
+            throw new VCDPException(ErrorConstant.RegisterErr.EMAIL_ALREADY_EXIST);
         }
 
         // 使用密码工具加密密码

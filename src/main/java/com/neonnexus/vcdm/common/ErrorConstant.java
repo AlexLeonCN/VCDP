@@ -24,10 +24,12 @@ public interface ErrorConstant {
     }
 
     interface RegisterErr {
-        Pair<Integer, String> USER_NAME_NONE_ERR = Pair.of(10010003, "用户名不能为空");
-        Pair<Integer, String> PASSWORD_NONE_ERR = Pair.of(10010004, "密码不能为空");
-        Pair<Integer, String> EMAIL_NONE_ERR = Pair.of(10010005, "邮箱不能为空");
-        Pair<Integer, String> REGISTER_EXCEPTION_ERR = Pair.of(10010006, "注册失败，请稍后重试");
+        Pair<Integer, String> USER_NAME_NONE_ERR = Pair.of(10020001, "用户名不能为空");
+        Pair<Integer, String> PASSWORD_NONE_ERR = Pair.of(10020002, "密码不能为空");
+        Pair<Integer, String> EMAIL_NONE_ERR = Pair.of(10020003, "邮箱不能为空");
+        Pair<Integer, String> REGISTER_EXCEPTION_ERR = Pair.of(10020004, "注册失败，请稍后重试");
+        Pair<Integer, String> USER_NAME_ALREADY_EXIST = Pair.of(10020005, " 用户名已存在");
+        Pair<Integer, String> EMAIL_ALREADY_EXIST = Pair.of(10020006, " 邮箱已被注册");
     }
 
     interface AuthErr {

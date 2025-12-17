@@ -2,6 +2,7 @@ package com.neonnexus.vcdm.controller;
 
 import com.neonnexus.vcdm.common.ErrorConstant;
 import com.neonnexus.vcdm.common.Result;
+import com.neonnexus.vcdm.common.VCDPException;
 import com.neonnexus.vcdm.entity.po.User;
 import com.neonnexus.vcdm.entity.vo.LoginInfo;
 import com.neonnexus.vcdm.service.UserService;
@@ -87,8 +88,8 @@ public class UserController {
                 "nickname", registeredUser.getNickName() != null ? registeredUser.getNickName() : ""
             ));
             return Result.success("注册成功", data);
-        } catch (RuntimeException e) {
-            return Result.error(ErrorConstant.RegisterErr.REGISTER_EXCEPTION_ERR);
+        } catch (VCDPException e) {
+            return Result.error(e);
         } catch (Exception e) {
             return Result.error(ErrorConstant.RegisterErr.REGISTER_EXCEPTION_ERR);
         }

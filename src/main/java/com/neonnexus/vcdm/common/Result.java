@@ -45,6 +45,13 @@ public class Result<T> {
     }
 
     /**
+     * 失败响应（使用 ErrorConstant 中的错误定义）
+     */
+    public static <T> Result<T> error(VCDPException exception) {
+        return new Result<>(exception.getCode(), false, exception.getMessage(), null);
+    }
+
+    /**
      * 失败响应（指定错误码和消息）
      */
     public static <T> Result<T> error(Integer code, String message) {

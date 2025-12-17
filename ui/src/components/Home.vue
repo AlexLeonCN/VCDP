@@ -7,21 +7,7 @@
           <!-- 左侧：车辆图标 + 标题 -->
           <div class="header-left">
             <div class="logo-container" @click="goToHome">
-              <svg class="car-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <!-- 车辆主体 -->
-                <rect x="15" y="45" width="70" height="30" rx="5" fill="#2d7eff"/>
-                <!-- 车窗 -->
-                <rect x="25" y="50" width="20" height="15" rx="2" fill="#ffffff" opacity="0.9"/>
-                <rect x="55" y="50" width="20" height="15" rx="2" fill="#ffffff" opacity="0.9"/>
-                <!-- 车轮 -->
-                <circle cx="30" cy="80" r="8" fill="#1a1a1a"/>
-                <circle cx="70" cy="80" r="8" fill="#1a1a1a"/>
-                <circle cx="30" cy="80" r="5" fill="#666666"/>
-                <circle cx="70" cy="80" r="5" fill="#666666"/>
-                <!-- 车灯 -->
-                <circle cx="15" cy="60" r="4" fill="#ffeb3b"/>
-                <circle cx="85" cy="60" r="4" fill="#f44336"/>
-              </svg>
+              <img :src="logoImg" alt="VCDP Logo" class="car-icon" />
             </div>
             <h1 class="site-title">VCDP-车辆通信设计平台</h1>
           </div>
@@ -72,6 +58,7 @@ import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { ArrowDown, SwitchButton } from '@element-plus/icons-vue';
 import { useUserStore } from '../stores/user';
+import logoImg from '../assets/logo.png';
 
 export default {
   name: 'Home',
@@ -130,7 +117,8 @@ export default {
       logoutLoading,
       goToHome,
       handleCommand,
-      handleLogout
+      handleLogout,
+      logoImg
     };
   }
 };
@@ -368,10 +356,6 @@ export default {
     flex-shrink: 0;
   }
   
-  .car-icon {
-    width: 20px;
-    height: 20px;
-  }
   
   .username {
     display: none;
@@ -408,10 +392,6 @@ export default {
     height: 32px;
   }
 
-  .car-icon {
-    width: 18px;
-    height: 18px;
-  }
 }
 </style>
 

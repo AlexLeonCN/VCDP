@@ -2,7 +2,7 @@ package com.neonnexus.vcdm.controller;
 
 import com.neonnexus.vcdm.common.ErrorConstant;
 import com.neonnexus.vcdm.common.Result;
-import com.neonnexus.vcdm.entity.User;
+import com.neonnexus.vcdm.entity.po.User;
 import com.neonnexus.vcdm.entity.vo.LoginInfo;
 import com.neonnexus.vcdm.service.UserService;
 import com.neonnexus.vcdm.util.JwtUtil;
@@ -92,6 +92,17 @@ public class UserController {
         } catch (Exception e) {
             return Result.error(ErrorConstant.RegisterErr.REGISTER_EXCEPTION_ERR);
         }
+    }
+
+    /**
+     * 退出登录接口
+     * 仅用于后端接口请求记录，JWT 无状态认证，真正的登出由前端清除 token
+     */
+    @PostMapping("/api/logout")
+    public Result<Void> logout() {
+        // 此接口仅用于记录登出请求日志
+        // JWT 无状态认证，真正的登出是前端清除 token
+        return Result.success("退出登录成功", null);
     }
 }
 

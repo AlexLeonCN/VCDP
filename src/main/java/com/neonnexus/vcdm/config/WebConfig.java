@@ -29,6 +29,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/api/login",      // 排除登录接口
                         "/api/register",   // 排除注册接口
+                        "/api/logout",     // 排除登出接口（仅用于记录请求日志）
                         "/api/hello"       // 排除测试接口
                 );
     }

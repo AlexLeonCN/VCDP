@@ -1,6 +1,6 @@
 package com.neonnexus.vcdm.mapper;
 
-import com.neonnexus.vcdm.entity.Permission;
+import com.neonnexus.vcdm.entity.po.Permission;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

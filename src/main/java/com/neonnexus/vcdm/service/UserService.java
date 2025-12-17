@@ -1,7 +1,7 @@
 package com.neonnexus.vcdm.service;
 
-import com.neonnexus.vcdm.entity.Role;
-import com.neonnexus.vcdm.entity.User;
+import com.neonnexus.vcdm.entity.po.Role;
+import com.neonnexus.vcdm.entity.po.User;
 import com.neonnexus.vcdm.mapper.RoleMapper;
 import com.neonnexus.vcdm.mapper.UserMapper;
 import com.neonnexus.vcdm.mapper.UserRoleMapper;

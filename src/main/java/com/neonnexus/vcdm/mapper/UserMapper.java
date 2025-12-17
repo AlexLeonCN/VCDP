@@ -1,6 +1,6 @@
 package com.neonnexus.vcdm.mapper;
 
-import com.neonnexus.vcdm.entity.User;
+import com.neonnexus.vcdm.entity.po.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

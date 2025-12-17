@@ -1,4 +1,4 @@
-package com.neonnexus.vcdm.entity;
+package com.neonnexus.vcdm.entity.po;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

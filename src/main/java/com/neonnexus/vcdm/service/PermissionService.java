@@ -1,7 +1,7 @@
 package com.neonnexus.vcdm.service;
 
-import com.neonnexus.vcdm.entity.Permission;
-import com.neonnexus.vcdm.entity.Role;
+import com.neonnexus.vcdm.entity.po.Permission;
+import com.neonnexus.vcdm.entity.po.Role;
 import com.neonnexus.vcdm.mapper.PermissionMapper;
 import com.neonnexus.vcdm.mapper.RoleMapper;
 import lombok.RequiredArgsConstructor;

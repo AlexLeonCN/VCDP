@@ -17,7 +17,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-public class UserController {
+public class AuthController {
 
     private final UserService userService;
     private final JwtUtil jwtUtil;

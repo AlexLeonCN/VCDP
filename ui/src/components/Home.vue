@@ -1,19 +1,54 @@
 <template>
   <div class="home-page">
     <el-container>
-      <el-header>
+      <!-- Dashboard 顶栏 -->
+      <el-header class="dashboard-header">
         <div class="header-content">
-          <h1 class="site-title">VCDP-车辆通信设计平台</h1>
-          <div class="user-info">
-            <span v-if="userStore.username" class="username">
-              欢迎，{{ userStore.username }}
-            </span>
-            <el-button type="danger" @click="handleLogout" :loading="logoutLoading">
-              退出登录
-            </el-button>
+          <!-- 左侧：车辆图标 + 标题 -->
+          <div class="header-left">
+            <div class="logo-container" @click="goToHome">
+              <svg class="car-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- 车辆主体 -->
+                <rect x="15" y="45" width="70" height="30" rx="5" fill="#2d7eff"/>
+                <!-- 车窗 -->
+                <rect x="25" y="50" width="20" height="15" rx="2" fill="#ffffff" opacity="0.9"/>
+                <rect x="55" y="50" width="20" height="15" rx="2" fill="#ffffff" opacity="0.9"/>
+                <!-- 车轮 -->
+                <circle cx="30" cy="80" r="8" fill="#1a1a1a"/>
+                <circle cx="70" cy="80" r="8" fill="#1a1a1a"/>
+                <circle cx="30" cy="80" r="5" fill="#666666"/>
+                <circle cx="70" cy="80" r="5" fill="#666666"/>
+                <!-- 车灯 -->
+                <circle cx="15" cy="60" r="4" fill="#ffeb3b"/>
+                <circle cx="85" cy="60" r="4" fill="#f44336"/>
+              </svg>
+            </div>
+            <h1 class="site-title">VCDP-车辆通信设计平台</h1>
+          </div>
+
+          <!-- 右侧：用户下拉菜单 -->
+          <div class="header-right">
+            <el-dropdown @command="handleCommand" trigger="click">
+              <span class="user-dropdown">
+                <el-avatar :size="32" class="user-avatar">
+                  {{ userStore.username ? userStore.username.charAt(0).toUpperCase() : 'U' }}
+                </el-avatar>
+                <span class="username">{{ userStore.username || '用户' }}</span>
+                <el-icon class="dropdown-icon"><ArrowDown /></el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="logout" divided>
+                    <el-icon><SwitchButton /></el-icon>
+                    <span>退出登录</span>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </div>
         </div>
       </el-header>
+
       <el-main>
         <el-card>
           <h2>欢迎使用 VCDP 车辆通信设计平台</h2>
@@ -32,17 +67,34 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { ArrowDown, SwitchButton } from '@element-plus/icons-vue';
 import { useUserStore } from '../stores/user';
 
 export default {
   name: 'Home',
+  components: {
+    ArrowDown,
+    SwitchButton
+  },
   setup() {
     const router = useRouter();
     const userStore = useUserStore();
     const logoutLoading = ref(false);
+
+    // 返回主页
+    const goToHome = () => {
+      router.push('/home');
+    };
+
+    // 下拉菜单命令处理
+    const handleCommand = async (command) => {
+      if (command === 'logout') {
+        await handleLogout();
+      }
+    };
 
     // 退出登录
     const handleLogout = async () => {
@@ -71,16 +123,13 @@ export default {
       }
     };
 
-    // 组件挂载时获取用户信息
-    onMounted(() => {
-      if (userStore.isAuthenticated && !userStore.userInfo) {
-        userStore.fetchUserInfo();
-      }
-    });
+    // 用户信息已在登录/注册时获取，无需单独调用接口
 
     return {
       userStore,
       logoutLoading,
+      goToHome,
+      handleCommand,
       handleLogout
     };
   }
@@ -89,7 +138,26 @@ export default {
 
 <style scoped>
 .home-page {
-  height: 100vh;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Dashboard 顶栏样式 */
+.dashboard-header {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+:deep(.el-header) {
+  width: 100%;
+  padding: 0;
 }
 
 .header-content {
@@ -97,36 +165,150 @@ export default {
   justify-content: space-between;
   align-items: center;
   height: 100%;
+  width: 100%;
+  padding: 0 24px;
+  max-width: 100vw;
+  box-sizing: border-box;
 }
 
-.user-info {
+/* 左侧：图标 + 标题 */
+.header-left {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
+  flex: 1;
+  min-width: 0; /* 允许 flex 子元素收缩 */
+  overflow: hidden; /* 防止内容溢出 */
 }
 
-.username {
-  color: #606266;
-  font-size: 14px;
+.logo-container {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.logo-container:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.car-icon {
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .site-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #2d7eff;
+  font-size: 26px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
 }
 
-.el-header {
-  background-color: #fff;
-  border-bottom: 1px solid #e4e7ed;
-  padding: 0 20px;
+/* 右侧：用户下拉菜单 */
+.header-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0; /* 防止右侧菜单被压缩 */
+  margin-left: 16px;
 }
 
-.el-main {
+.user-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.user-dropdown:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.user-avatar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-weight: bold;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.username {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.dropdown-icon {
+  color: #ffffff;
+  font-size: 14px;
+  transition: transform 0.3s ease;
+}
+
+.user-dropdown:hover .dropdown-icon {
+  transform: translateY(2px);
+}
+
+/* 下拉菜单样式优化 */
+:deep(.el-dropdown-menu) {
+  margin-top: 8px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+:deep(.el-dropdown-menu__item) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+}
+
+:deep(.el-dropdown-menu__item:hover) {
+  background-color: #f5f7fa;
+  color: #409eff;
+}
+
+:deep(.el-dropdown-menu__item.is-divided) {
+  border-top: 1px solid #e4e7ed;
+}
+
+/* 主内容区域 */
+:deep(.el-container) {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+:deep(.el-main) {
+  width: 100%;
   background-color: #f5f7fa;
   padding: 20px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .el-card {
@@ -162,6 +344,74 @@ export default {
   padding: 10px;
   border-radius: 4px;
   overflow-x: auto;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .dashboard-header {
+    height: 56px;
+  }
+
+  .header-content {
+    padding: 0 16px;
+  }
+
+  .site-title {
+    font-size: 16px;
+    letter-spacing: 1px;
+    max-width: 200px; /* 限制标题最大宽度，避免挤压 */
+  }
+  
+  .logo-container {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+  
+  .car-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .username {
+    display: none;
+  }
+
+  .user-dropdown {
+    padding: 4px 8px;
+  }
+
+  .user-avatar {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-content {
+    padding: 0 12px;
+  }
+
+  .site-title {
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    max-width: 150px;
+  }
+
+  .header-left {
+    gap: 12px;
+  }
+
+  .logo-container {
+    width: 32px;
+    height: 32px;
+  }
+
+  .car-icon {
+    width: 18px;
+    height: 18px;
+  }
 }
 </style>
 

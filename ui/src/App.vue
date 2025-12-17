@@ -11,11 +11,15 @@ export default {
 </script>
 
 <style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 #app {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  width: 100%;
+  min-height: 100vh;
   background: #f5f7fa;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }

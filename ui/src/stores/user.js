@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { login as loginApi, register as registerApi, logout as logoutApi, getUserInfo } from '../api';
+import { login as loginApi, register as registerApi, logout as logoutApi } from '../api';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -117,20 +117,6 @@ export const useUserStore = defineStore('user', {
         this.isLoggedIn = false;
         this.userInfo = null;
         localStorage.removeItem('token');
-      }
-    },
-
-    /**
-     * 获取用户信息
-     */
-    async fetchUserInfo() {
-      try {
-        const data = await getUserInfo();
-        if (data.success) {
-          this.userInfo = data.userInfo || data.data;
-        }
-      } catch (error) {
-        console.error('获取用户信息失败:', error);
       }
     },
 

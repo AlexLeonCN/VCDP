@@ -98,20 +98,11 @@ export async function register(username, password, email, nickname) {
 }
 
 /**
- * 退出登录接口（如果需要）
+ * 退出登录接口
  */
 export async function logout() {
   return request('/logout', {
     method: 'POST'
-  });
-}
-
-/**
- * 获取用户信息接口（示例）
- */
-export async function getUserInfo() {
-  return request('/user/info', {
-    method: 'GET'
   });
 }
 

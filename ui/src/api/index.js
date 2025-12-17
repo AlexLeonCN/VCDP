@@ -31,6 +31,7 @@ async function request(url, options = {}) {
       if (response.status === 401) {
         // token 过期或无效，清除并跳转到登录页
         localStorage.removeItem('token');
+        localStorage.removeItem('userInfo');
         if (window.location.pathname !== '/login') {
           window.location.href = '/login';
         }

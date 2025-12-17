@@ -2,11 +2,15 @@ import { defineStore } from 'pinia';
 import { login as loginApi, register as registerApi, logout as logoutApi } from '../api';
 
 export const useUserStore = defineStore('user', {
-  state: () => ({
-    token: localStorage.getItem('token') || '',
-    userInfo: null,
-    isLoggedIn: !!localStorage.getItem('token')
-  }),
+  state: () => {
+    // 从 localStorage 恢复用户信息
+    const savedUserInfo = localStorage.getItem('userInfo');
+    return {
+      token: localStorage.getItem('token') || '',
+      userInfo: savedUserInfo ? JSON.parse(savedUserInfo) : null,
+      isLoggedIn: !!localStorage.getItem('token')
+    };
+  },
 
   getters: {
     username: (state) => state.userInfo?.username || '',
@@ -34,15 +38,22 @@ export const useUserStore = defineStore('user', {
           this.isLoggedIn = true;
 
           // 保存用户信息（如果返回了）
+          let userInfo = null;
           if (data.data?.userInfo) {
-            this.userInfo = data.data.userInfo;
+            userInfo = data.data.userInfo;
           } else if (data.userInfo) {
-            this.userInfo = data.userInfo;
+            userInfo = data.userInfo;
           } else if (data.user) {
-            this.userInfo = data.user;
+            userInfo = data.user;
           } else if (data.username) {
             // 如果只返回了用户名，也保存
-            this.userInfo = { username: data.username };
+            userInfo = { username: data.username };
+          }
+          
+          if (userInfo) {
+            this.userInfo = userInfo;
+            // 持久化到 localStorage
+            localStorage.setItem('userInfo', JSON.stringify(userInfo));
           }
 
           return { success: true, message: data.message || '登录成功' };
@@ -78,15 +89,22 @@ export const useUserStore = defineStore('user', {
           this.isLoggedIn = true;
 
           // 保存用户信息（如果返回了）
+          let userInfo = null;
           if (data.data?.userInfo) {
-            this.userInfo = data.data.userInfo;
+            userInfo = data.data.userInfo;
           } else if (data.userInfo) {
-            this.userInfo = data.userInfo;
+            userInfo = data.userInfo;
           } else if (data.user) {
-            this.userInfo = data.user;
+            userInfo = data.user;
           } else if (data.username) {
             // 如果只返回了用户名，也保存
-            this.userInfo = { username: data.username };
+            userInfo = { username: data.username };
+          }
+          
+          if (userInfo) {
+            this.userInfo = userInfo;
+            // 持久化到 localStorage
+            localStorage.setItem('userInfo', JSON.stringify(userInfo));
           }
 
           return { success: true, message: data.message || '注册成功' };
@@ -117,6 +135,7 @@ export const useUserStore = defineStore('user', {
         this.isLoggedIn = false;
         this.userInfo = null;
         localStorage.removeItem('token');
+        localStorage.removeItem('userInfo');
       }
     },
 
@@ -128,6 +147,7 @@ export const useUserStore = defineStore('user', {
       this.isLoggedIn = false;
       this.userInfo = null;
       localStorage.removeItem('token');
+      localStorage.removeItem('userInfo');
     }
   }
 });

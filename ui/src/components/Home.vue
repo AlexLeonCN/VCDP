@@ -181,6 +181,7 @@ export default {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden; /* 确保图片被裁剪成圆形 */
 }
 
 .logo-container:hover {
@@ -190,9 +191,10 @@ export default {
 }
 
 .car-icon {
-  width: 32px;
-  height: 32px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 填充整个容器，保持比例并裁剪多余部分 */
+  border-radius: 50%; /* 确保图片也是圆形 */
 }
 
 .site-title {

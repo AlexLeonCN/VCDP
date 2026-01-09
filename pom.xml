@@ -69,6 +69,11 @@
         <optional>true</optional>
     </dependency>
 
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+    </dependency>
+
     <!-- 你后续需要什么依赖都可以不写 version -->
     <!-- 比如：Validation、Redis 等等 -->
 

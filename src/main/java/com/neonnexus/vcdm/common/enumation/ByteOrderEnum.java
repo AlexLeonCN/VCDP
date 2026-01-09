@@ -1,5 +1,10 @@
 package com.neonnexus.vcdm.common.enumation;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
+import java.util.Optional;
+
 public enum ByteOrderEnum {
     INTEL(0, "INTEL", "Intel"),
     MOTOROLA_MSB(1, "MOTOROLA_MSB", "Motorola_MSB"),
@@ -27,5 +32,24 @@ public enum ByteOrderEnum {
         return value;
     }
 
+    public static boolean checkExist(String value) {
+        if (StringUtils.isBlank(value)) {
+            return false;
+        }
+        return Arrays.stream(ByteOrderEnum.values()).filter(item ->
+                item.getValue().equalsIgnoreCase(value)).findAny().isPresent();
+    }
+
+    public static ByteOrderEnum getByValue(String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+        Optional<ByteOrderEnum> opt = Arrays.stream(ByteOrderEnum.values()).filter(item ->
+                item.getValue().equalsIgnoreCase(value)).findAny();
+        if (!opt.isPresent()) {
+            return null;
+        }
+        return opt.get();
+    }
 
 }

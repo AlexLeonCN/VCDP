@@ -3,7 +3,7 @@
 <mapper namespace="com.neonnexus.vcdm.mapper.UserMapper">
 
     <!-- 结果映射 -->
-    <resultMap id="UserResultMap" type="com.neonnexus.vcdm.entity.po.User">
+    <resultMap id="UserResultMap" type="com.neonnexus.vcdm.entity.po.auth.User">
         <id column="id" property="id"/>
         <result column="user_name" property="userName"/>
         <result column="password" property="password"/>

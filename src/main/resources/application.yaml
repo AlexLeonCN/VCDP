@@ -23,7 +23,7 @@ spring:
         web-allow-others: false
 
 server:
-  port: 8080
+  port: 9992
 
 # MyBatis 配置
 mybatis:

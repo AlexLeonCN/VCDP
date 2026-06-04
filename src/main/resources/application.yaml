@@ -36,8 +36,3 @@ mybatis:
     map-underscore-to-camel-case: true
     # 日志实现
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-# JWT 配置
-jwt:
-  secret: vcdp-secret-key-2024-please-change-in-production-environment
-  expiration: 86400000 # 24小时（毫秒）

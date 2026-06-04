@@ -1,2 +1,12 @@
--- 单机工具模式暂无账号、角色或权限表。
--- 后续本地项目数据表可在此处补充。
+-- 本地单机工具数据库表结构初始化脚本
+
+CREATE TABLE IF NOT EXISTS project (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    topo_type TINYINT DEFAULT 0,
+    description VARCHAR(500),
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_project_update_time ON project(update_time);

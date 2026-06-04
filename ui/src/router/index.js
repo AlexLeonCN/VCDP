@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../components/Home.vue';
+import ProjectWorkspace from '../components/ProjectWorkspace.vue';
 
 const routes = [
   {
@@ -10,6 +11,12 @@ const routes = [
     path: '/home',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/projects/:id',
+    name: 'ProjectWorkspace',
+    component: ProjectWorkspace,
+    props: true
   },
   {
     path: '/:pathMatch(.*)*',
@@ -23,4 +30,3 @@ const router = createRouter({
 });
 
 export default router;
-

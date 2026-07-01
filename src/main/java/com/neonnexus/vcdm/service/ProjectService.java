@@ -70,8 +70,5 @@ public class ProjectService {
             String description = project.getDescription().trim();
             project.setDescription(description.isEmpty() ? null : description);
         }
-        if (project.getTopoType() == null) {
-            project.setTopoType(0);
-        }
     }
 }

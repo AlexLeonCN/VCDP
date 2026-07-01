@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 public class Project {
     private Long id;
     private String name;
-    private Integer topoType;
     private String description;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

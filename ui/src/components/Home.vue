@@ -1,10 +1,8 @@
 <template>
   <div class="home-page">
     <el-container>
-      <!-- Dashboard 顶栏 -->
       <el-header class="dashboard-header">
         <div class="header-content">
-          <!-- 左侧：车辆图标 + 标题 -->
           <div class="header-left">
             <div class="logo-container" @click="goToHome">
               <img :src="logoImg" alt="VCDP Logo" class="car-icon" />
@@ -12,113 +10,298 @@
             <h1 class="site-title">VCDP-车辆通信设计平台</h1>
           </div>
 
-          <!-- 右侧：用户下拉菜单 -->
           <div class="header-right">
-            <el-dropdown @command="handleCommand" trigger="click">
-              <span class="user-dropdown">
-                <el-avatar :size="32" class="user-avatar">
-                  {{ userStore.username ? userStore.username.charAt(0).toUpperCase() : 'U' }}
-                </el-avatar>
-                <span class="username">{{ userStore.username || '用户' }}</span>
-                <el-icon class="dropdown-icon"><ArrowDown /></el-icon>
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="logout" divided>
-                    <el-icon><SwitchButton /></el-icon>
-                    <span>退出登录</span>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
+            <span class="local-mode-badge">本地单机模式</span>
           </div>
         </div>
       </el-header>
 
       <el-main>
-        <el-card>
-          <h2>欢迎使用 VCDP 车辆通信设计平台</h2>
-          <p>您已成功登录！</p>
-          <p>这里将是您的主要工作区域。</p>
-          <el-divider />
-          <div class="info-section">
-            <h3>系统信息</h3>
-            <p><strong>登录状态：</strong>{{ userStore.isAuthenticated ? '已登录' : '未登录' }}</p>
-            <p v-if="userStore.userInfo"><strong>用户信息：</strong>{{ JSON.stringify(userStore.userInfo, null, 2) }}</p>
+        <section class="project-toolbar">
+          <div>
+            <h2>工程列表</h2>
+            <p>所有 ECU、网络接口、PDU、Signal 等实例都将在进入具体工程后创建和管理。</p>
           </div>
-        </el-card>
+          <div class="toolbar-actions">
+            <el-button type="primary" :icon="Plus" @click="openCreateDialog">新增工程</el-button>
+            <el-button :icon="Refresh" @click="loadProjects">加载工程</el-button>
+            <el-button
+              type="danger"
+              :icon="Delete"
+              :disabled="selectedIds.length === 0"
+              @click="handleBatchDelete"
+            >
+              批量删除
+            </el-button>
+          </div>
+        </section>
+
+        <el-empty v-if="!loading && projects.length === 0" description="暂无工程，请新增或加载工程" />
+
+        <div v-else v-loading="loading" class="project-grid">
+          <el-tooltip
+            v-for="project in projects"
+            :key="project.id"
+            :content="project.description"
+            :disabled="!project.description"
+            placement="top"
+          >
+            <article class="project-card" @click="enterProject(project)">
+              <el-checkbox
+                class="project-select"
+                :model-value="selectedIds.includes(project.id)"
+                @click.stop
+                @change="checked => toggleSelection(project.id, checked)"
+              />
+
+              <div class="project-actions" @click.stop>
+                <el-button circle text :icon="Edit" @click="openEditDialog(project)" />
+                <el-button circle text type="danger" :icon="Delete" @click="handleDelete(project)" />
+              </div>
+
+              <h3 class="project-name">{{ project.name }}</h3>
+            </article>
+          </el-tooltip>
+        </div>
+
+        <div class="pagination-wrapper" v-if="total > 0">
+          <el-pagination
+            background
+            layout="prev, pager, next, jumper, total"
+            :current-page="page"
+            :page-size="size"
+            :total="total"
+            @current-change="handlePageChange"
+          />
+        </div>
       </el-main>
     </el-container>
+
+    <el-dialog
+      v-model="dialogVisible"
+      :title="dialogMode === 'create' ? '新增工程' : '编辑工程'"
+      width="460px"
+      destroy-on-close
+    >
+      <el-form ref="projectFormRef" :model="projectForm" :rules="rules" label-width="80px">
+        <el-form-item label="工程名称" prop="name">
+          <el-input v-model="projectForm.name" maxlength="100" show-word-limit placeholder="请输入工程名称" />
+        </el-form-item>
+        <el-form-item label="工程描述" prop="description">
+          <el-input
+            v-model="projectForm.description"
+            type="textarea"
+            maxlength="500"
+            show-word-limit
+            :rows="4"
+            placeholder="可选，鼠标悬浮工程卡片时展示"
+          />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="saving" @click="submitProject">保存</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { ArrowDown, SwitchButton } from '@element-plus/icons-vue';
-import { useUserStore } from '../stores/user';
+import { Delete, Edit, Plus, Refresh } from '@element-plus/icons-vue';
 import logoImg from '../assets/logo.png';
+import { batchDeleteProjects, createProject, deleteProject, fetchProjects, updateProject } from '../api';
 
 export default {
   name: 'Home',
-  components: {
-    ArrowDown,
-    SwitchButton
-  },
   setup() {
     const router = useRouter();
-    const userStore = useUserStore();
-    const logoutLoading = ref(false);
+    const projects = ref([]);
+    const selectedIds = ref([]);
+    const loading = ref(false);
+    const saving = ref(false);
+    const page = ref(1);
+    const size = ref(12);
+    const total = ref(0);
+    const dialogVisible = ref(false);
+    const dialogMode = ref('create');
+    const editingProjectId = ref(null);
+    const projectFormRef = ref(null);
+    const projectForm = reactive({
+      name: '',
+      description: ''
+    });
 
-    // 返回主页
+    const rules = {
+      name: [
+        { required: true, message: '请输入工程名称', trigger: 'blur' },
+        { min: 1, max: 100, message: '工程名称长度不能超过 100 个字符', trigger: 'blur' }
+      ],
+      description: [
+        { max: 500, message: '工程描述长度不能超过 500 个字符', trigger: 'blur' }
+      ]
+    };
+
     const goToHome = () => {
       router.push('/home');
     };
 
-    // 下拉菜单命令处理
-    const handleCommand = async (command) => {
-      if (command === 'logout') {
-        await handleLogout();
-      }
-    };
-
-    // 退出登录
-    const handleLogout = async () => {
+    const loadProjects = async () => {
+      loading.value = true;
       try {
-        await ElMessageBox.confirm(
-          '确定要退出登录吗？',
-          '提示',
-          {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
-        );
-
-        logoutLoading.value = true;
-        await userStore.logout();
-        ElMessage.success('已退出登录');
-        router.push('/login');
+        const data = await fetchProjects({ page: page.value, size: size.value });
+        projects.value = data.records || [];
+        total.value = data.total || 0;
+        selectedIds.value = selectedIds.value.filter(id => projects.value.some(project => project.id === id));
       } catch (error) {
-        // 用户取消操作
-        if (error !== 'cancel') {
-          ElMessage.error('退出登录失败');
-        }
+        ElMessage.error(error.message || '加载工程失败');
       } finally {
-        logoutLoading.value = false;
+        loading.value = false;
       }
     };
 
-    // 用户信息已在登录/注册时获取，无需单独调用接口
+    const resetForm = () => {
+      projectForm.name = '';
+      projectForm.description = '';
+      editingProjectId.value = null;
+      projectFormRef.value?.clearValidate?.();
+    };
+
+    const openCreateDialog = () => {
+      dialogMode.value = 'create';
+      resetForm();
+      dialogVisible.value = true;
+    };
+
+    const openEditDialog = (project) => {
+      dialogMode.value = 'edit';
+      editingProjectId.value = project.id;
+      projectForm.name = project.name;
+      projectForm.description = project.description || '';
+      dialogVisible.value = true;
+    };
+
+    const submitProject = async () => {
+      if (!projectFormRef.value) return;
+      await projectFormRef.value.validate(async valid => {
+        if (!valid) return;
+        saving.value = true;
+        try {
+          const payload = {
+            name: projectForm.name,
+            description: projectForm.description
+          };
+          if (dialogMode.value === 'create') {
+            await createProject(payload);
+            ElMessage.success('工程创建成功');
+            page.value = 1;
+          } else {
+            await updateProject(editingProjectId.value, payload);
+            ElMessage.success('工程更新成功');
+          }
+          dialogVisible.value = false;
+          await loadProjects();
+        } catch (error) {
+          ElMessage.error(error.message || '保存工程失败');
+        } finally {
+          saving.value = false;
+        }
+      });
+    };
+
+    const toggleSelection = (id, checked) => {
+      if (checked) {
+        if (!selectedIds.value.includes(id)) {
+          selectedIds.value = [...selectedIds.value, id];
+        }
+      } else {
+        selectedIds.value = selectedIds.value.filter(selectedId => selectedId !== id);
+      }
+    };
+
+    const handleDelete = async (project) => {
+      try {
+        await ElMessageBox.confirm(`确定删除工程“${project.name}”吗？`, '删除工程', {
+          confirmButtonText: '删除',
+          cancelButtonText: '取消',
+          type: 'warning'
+        });
+        await deleteProject(project.id);
+        ElMessage.success('工程已删除');
+        selectedIds.value = selectedIds.value.filter(id => id !== project.id);
+        if (projects.value.length === 1 && page.value > 1) {
+          page.value -= 1;
+        }
+        await loadProjects();
+      } catch (error) {
+        if (error !== 'cancel') {
+          ElMessage.error(error.message || '删除工程失败');
+        }
+      }
+    };
+
+    const handleBatchDelete = async () => {
+      if (selectedIds.value.length === 0) return;
+      try {
+        await ElMessageBox.confirm(`确定删除选中的 ${selectedIds.value.length} 个工程吗？`, '批量删除工程', {
+          confirmButtonText: '删除',
+          cancelButtonText: '取消',
+          type: 'warning'
+        });
+        await batchDeleteProjects(selectedIds.value);
+        ElMessage.success('批量删除完成');
+        selectedIds.value = [];
+        page.value = 1;
+        await loadProjects();
+      } catch (error) {
+        if (error !== 'cancel') {
+          ElMessage.error(error.message || '批量删除失败');
+        }
+      }
+    };
+
+    const handlePageChange = async (nextPage) => {
+      page.value = nextPage;
+      await loadProjects();
+    };
+
+    const enterProject = (project) => {
+      router.push(`/projects/${project.id}`);
+    };
+
+    onMounted(loadProjects);
 
     return {
-      userStore,
-      logoutLoading,
+      Delete,
+      Edit,
+      Plus,
+      Refresh,
+      dialogMode,
+      dialogVisible,
       goToHome,
-      handleCommand,
-      handleLogout,
-      logoImg
+      handleBatchDelete,
+      handleDelete,
+      handlePageChange,
+      enterProject,
+      loadProjects,
+      loading,
+      logoImg,
+      openCreateDialog,
+      openEditDialog,
+      page,
+      projectForm,
+      projectFormRef,
+      projects,
+      rules,
+      saving,
+      selectedIds,
+      size,
+      submitProject,
+      toggleSelection,
+      total
     };
   }
 };
@@ -132,7 +315,6 @@ export default {
   flex-direction: column;
 }
 
-/* Dashboard 顶栏样式 */
 .dashboard-header {
   width: 100%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -159,14 +341,13 @@ export default {
   box-sizing: border-box;
 }
 
-/* 左侧：图标 + 标题 */
 .header-left {
   display: flex;
   align-items: center;
   gap: 16px;
   flex: 1;
-  min-width: 0; /* 允许 flex 子元素收缩 */
-  overflow: hidden; /* 防止内容溢出 */
+  min-width: 0;
+  overflow: hidden;
 }
 
 .logo-container {
@@ -181,7 +362,7 @@ export default {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  overflow: hidden; /* 确保图片被裁剪成圆形 */
+  overflow: hidden;
 }
 
 .logo-container:hover {
@@ -193,8 +374,8 @@ export default {
 .car-icon {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* 填充整个容器，保持比例并裁剪多余部分 */
-  border-radius: 50%; /* 确保图片也是圆形 */
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .site-title {
@@ -214,79 +395,26 @@ export default {
   flex-shrink: 1;
 }
 
-/* 右侧：用户下拉菜单 */
 .header-right {
   display: flex;
   align-items: center;
-  flex-shrink: 0; /* 防止右侧菜单被压缩 */
+  flex-shrink: 0;
   margin-left: 16px;
 }
 
-.user-dropdown {
-  display: flex;
+.local-mode-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  cursor: pointer;
   padding: 6px 12px;
-  border-radius: 20px;
+  border-radius: 999px;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-}
-
-.user-dropdown:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-.user-avatar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #fff;
-  font-weight: bold;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.username {
-  color: #ffffff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.5px;
 }
 
-.dropdown-icon {
-  color: #ffffff;
-  font-size: 14px;
-  transition: transform 0.3s ease;
-}
-
-.user-dropdown:hover .dropdown-icon {
-  transform: translateY(2px);
-}
-
-/* 下拉菜单样式优化 */
-:deep(.el-dropdown-menu) {
-  margin-top: 8px;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-}
-
-:deep(.el-dropdown-menu__item) {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  font-size: 14px;
-}
-
-:deep(.el-dropdown-menu__item:hover) {
-  background-color: #f5f7fa;
-  color: #409eff;
-}
-
-:deep(.el-dropdown-menu__item.is-divided) {
-  border-top: 1px solid #e4e7ed;
-}
-
-/* 主内容区域 */
 :deep(.el-container) {
   width: 100%;
   display: flex;
@@ -296,47 +424,108 @@ export default {
 :deep(.el-main) {
   width: 100%;
   background-color: #f5f7fa;
-  padding: 20px;
+  padding: 24px;
   flex: 1;
   overflow-y: auto;
 }
 
-.el-card {
+.project-toolbar {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0 auto 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
 }
 
-.el-card h2 {
-  margin-top: 0;
+.project-toolbar h2 {
+  margin: 0 0 8px;
   color: #303133;
 }
 
-.el-card p {
+.project-toolbar p {
+  margin: 0;
   color: #606266;
-  line-height: 1.8;
 }
 
-.info-section {
-  margin-top: 20px;
+.toolbar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
-.info-section h3 {
+.project-grid {
+  max-width: 1200px;
+  min-height: 260px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.project-card {
+  position: relative;
+  min-height: 150px;
+  padding: 24px 16px 18px;
+  border: 1px solid #e4e7ed;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-3px);
+  border-color: #409eff;
+  box-shadow: 0 10px 24px rgba(64, 158, 255, 0.18);
+}
+
+.project-select {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+}
+
+.project-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.project-card:hover .project-actions {
+  opacity: 1;
+}
+
+.project-name {
+  max-width: 100%;
+  margin: 0;
   color: #303133;
-  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.info-section p {
-  margin: 8px 0;
+.pagination-wrapper {
+  max-width: 1200px;
+  margin: 24px auto 0;
+  display: flex;
+  justify-content: flex-end;
 }
 
-.info-section pre {
-  background-color: #f5f7fa;
-  padding: 10px;
-  border-radius: 4px;
-  overflow-x: auto;
-}
-
-/* 响应式设计 */
 @media (max-width: 768px) {
   .dashboard-header {
     height: 56px;
@@ -349,28 +538,26 @@ export default {
   .site-title {
     font-size: 16px;
     letter-spacing: 1px;
-    max-width: 200px; /* 限制标题最大宽度，避免挤压 */
+    max-width: 200px;
   }
-  
+
   .logo-container {
     width: 36px;
     height: 36px;
     flex-shrink: 0;
   }
-  
-  
-  .username {
-    display: none;
-  }
 
-  .user-dropdown {
+  .local-mode-badge {
+    font-size: 12px;
     padding: 4px 8px;
   }
 
-  .user-avatar {
-    width: 28px !important;
-    height: 28px !important;
-    font-size: 12px;
+  .project-toolbar {
+    flex-direction: column;
+  }
+
+  .toolbar-actions {
+    justify-content: flex-start;
   }
 }
 
@@ -393,7 +580,5 @@ export default {
     width: 32px;
     height: 32px;
   }
-
 }
 </style>
-

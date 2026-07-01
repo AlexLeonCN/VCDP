@@ -7,7 +7,7 @@ module.exports = {
     port: 8081, // 本地调试端口，可避免和 Spring Boot 冲突
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // Spring Boot 后端接口
+        target: 'http://localhost:9992', // Spring Boot 后端接口
         changeOrigin: true
       }
     }

@@ -5,14 +5,13 @@
     <resultMap id="ProjectResultMap" type="com.neonnexus.vcdm.entity.po.project.Project">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
-        <result column="topo_type" property="topoType"/>
         <result column="description" property="description"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
     <select id="findPage" resultMap="ProjectResultMap">
-        SELECT id, name, topo_type, description, create_time, update_time
+        SELECT id, name, description, create_time, update_time
         FROM project
         ORDER BY update_time DESC, id DESC
         LIMIT #{size} OFFSET #{offset}
@@ -23,20 +22,19 @@
     </select>
 
     <select id="findById" resultMap="ProjectResultMap">
-        SELECT id, name, topo_type, description, create_time, update_time
+        SELECT id, name, description, create_time, update_time
         FROM project
         WHERE id = #{id}
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO project (name, topo_type, description)
-        VALUES (#{name}, #{topoType}, #{description})
+        INSERT INTO project (name, description)
+        VALUES (#{name}, #{description})
     </insert>
 
     <update id="update">
         UPDATE project
         SET name = #{name},
-            topo_type = #{topoType},
             description = #{description},
             update_time = CURRENT_TIMESTAMP
         WHERE id = #{id}

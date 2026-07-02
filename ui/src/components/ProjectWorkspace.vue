@@ -11,24 +11,24 @@
       </el-header>
 
       <el-container>
-        <el-aside width="260px" class="workspace-aside">
-          <div class="tree-title">工程对象树</div>
-          <el-tree :data="treeData" node-key="id" default-expand-all />
+        <el-aside width="240px" class="workspace-aside">
+          <div class="menu-title">工程菜单</div>
+          <el-menu :default-active="activeMenu" class="workspace-menu" @select="handleMenuSelect">
+            <el-menu-item index="overview">
+              <el-icon><HomeFilled /></el-icon>
+              <span>工程概览</span>
+            </el-menu-item>
+            <el-menu-item index="ecu">
+              <el-icon><Setting /></el-icon>
+              <span>ECU配置</span>
+            </el-menu-item>
+          </el-menu>
         </el-aside>
 
         <el-main class="workspace-main" v-loading="loading">
-          <el-card v-if="project">
-            <h2>{{ project.name }}</h2>
-            <p v-if="project.description" class="description">{{ project.description }}</p>
-            <p v-else class="description muted">该工程暂无描述。</p>
-            <el-divider />
-            <p>请从左侧工程对象树进入 ECU、网络接口、PDU、Signal 等工程内实例管理。</p>
-            <p>后续新增的所有实例都应携带当前工程 ID：{{ project.id }}。</p>
-          </el-card>
-
-          <el-empty v-else-if="!loading" description="工程不存在或已被删除">
-            <el-button type="primary" @click="goHome">返回工程列表</el-button>
-          </el-empty>
+          <router-view v-slot="{ Component }">
+            <component :is="Component" :project="project" :loading="loading" />
+          </router-view>
         </el-main>
       </el-container>
     </el-container>
@@ -36,10 +36,10 @@
 </template>
 
 <script>
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { ArrowLeft } from '@element-plus/icons-vue';
+import { ArrowLeft, HomeFilled, Setting } from '@element-plus/icons-vue';
 import { fetchProject } from '../api';
 
 export default {
@@ -52,20 +52,9 @@ export default {
   },
   setup(props) {
     const router = useRouter();
+    const route = useRoute();
     const project = ref(null);
     const loading = ref(false);
-    const treeData = [
-      {
-        id: 'project-root',
-        label: '当前工程',
-        children: [
-          { id: 'ecu', label: 'ECU 实例' },
-          { id: 'interface', label: '网络接口实例' },
-          { id: 'pdu', label: 'PDU 实例' },
-          { id: 'signal', label: 'Signal 实例' }
-        ]
-      }
-    ];
 
     const loadProject = async () => {
       loading.value = true;
@@ -82,14 +71,33 @@ export default {
       router.push('/home');
     };
 
+    const activeMenu = computed(() => (route.path.endsWith('/ecu') ? 'ecu' : 'overview'));
+
+    const handleMenuSelect = (index) => {
+      if (index === 'ecu') {
+        router.push(`/projects/${props.id}/ecu`);
+      } else {
+        router.push(`/projects/${props.id}`);
+      }
+    };
+
     onMounted(loadProject);
+    watch(
+      () => props.id,
+      () => {
+        loadProject();
+      }
+    );
 
     return {
       ArrowLeft,
+      HomeFilled,
+      Setting,
+      activeMenu,
       goHome,
+      handleMenuSelect,
       loading,
-      project,
-      treeData
+      project
     };
   }
 };
@@ -135,35 +143,22 @@ export default {
 .workspace-aside {
   background: #fff;
   border-right: 1px solid #e4e7ed;
-  padding: 16px;
+  padding: 16px 12px;
 }
 
-.tree-title {
-  margin-bottom: 12px;
-  color: #303133;
-  font-weight: 700;
+.menu-title {
+  margin: 4px 12px 12px;
+  color: #606266;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.workspace-menu {
+  border-right: none;
 }
 
 .workspace-main {
   background: #f5f7fa;
   padding: 24px;
-}
-
-.workspace-main .el-card {
-  max-width: 960px;
-}
-
-.workspace-main h2 {
-  margin: 0 0 12px;
-  color: #303133;
-}
-
-.description {
-  color: #606266;
-  line-height: 1.8;
-}
-
-.muted {
-  color: #909399;
 }
 </style>

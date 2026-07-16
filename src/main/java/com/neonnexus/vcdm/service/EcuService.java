@@ -38,7 +38,7 @@ public class EcuService {
 
     public PageResult<Ecu> listEcus(Long projectId, Integer page, Integer size) {
         if (projectId == null) {
-            return new PageResult<>(Collections.emptyList(), 0, DEFAULT_PAGE, DEFAULT_SIZE);
+            return new PageResult<>(Collections.emptyList(), 0L, DEFAULT_PAGE, DEFAULT_SIZE);
         }
         int safePage = page == null || page < 1 ? DEFAULT_PAGE : page;
         int safeSize = size == null || size < 1 ? DEFAULT_SIZE : Math.min(size, MAX_SIZE);

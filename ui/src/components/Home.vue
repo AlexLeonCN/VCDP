@@ -9,10 +9,6 @@
             </div>
             <h1 class="site-title">VCDP-车辆通信设计平台</h1>
           </div>
-
-          <div class="header-right">
-            <span class="local-mode-badge">本地单机模式</span>
-          </div>
         </div>
       </el-header>
 
@@ -395,26 +391,6 @@ export default {
   flex-shrink: 1;
 }
 
-.header-right {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  margin-left: 16px;
-}
-
-.local-mode-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
 :deep(.el-container) {
   width: 100%;
   display: flex;
@@ -545,11 +521,6 @@ export default {
     width: 36px;
     height: 36px;
     flex-shrink: 0;
-  }
-
-  .local-mode-badge {
-    font-size: 12px;
-    padding: 4px 8px;
   }
 
   .project-toolbar {

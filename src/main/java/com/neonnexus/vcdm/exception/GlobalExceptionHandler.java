@@ -57,6 +57,16 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 处理业务参数校验异常
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<Void> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.warn("参数校验异常: {}", e.getMessage());
+        return Result.error(ErrorConstant.CommonErrorCode.BAD_REQUEST, e.getMessage());
+    }
+
+    /**
      * 处理运行时异常
      */
     @ExceptionHandler(RuntimeException.class)

@@ -20,7 +20,6 @@
           </div>
           <div class="toolbar-actions">
             <el-button type="primary" :icon="Plus" @click="openCreateDialog">新增工程</el-button>
-            <el-button :icon="Refresh" @click="loadProjects">加载工程</el-button>
             <el-button
               type="danger"
               :icon="Delete"
@@ -32,7 +31,7 @@
           </div>
         </section>
 
-        <el-empty v-if="!loading && projects.length === 0" description="暂无工程，请新增或加载工程" />
+        <el-empty v-if="!loading && projects.length === 0" description="暂无工程，请新增工程" />
 
         <div v-else v-loading="loading" class="project-grid">
           <el-tooltip
@@ -107,7 +106,7 @@
 import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Delete, Edit, Plus, Refresh } from '@element-plus/icons-vue';
+import { Delete, Edit, Plus } from '@element-plus/icons-vue';
 import logoImg from '../assets/logo.png';
 import { batchDeleteProjects, createProject, deleteProject, fetchProjects, updateProject } from '../api';
 
@@ -274,7 +273,6 @@ export default {
       Delete,
       Edit,
       Plus,
-      Refresh,
       dialogMode,
       dialogVisible,
       goToHome,

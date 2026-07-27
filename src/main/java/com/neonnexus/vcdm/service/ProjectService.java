@@ -1,8 +1,13 @@
 package com.neonnexus.vcdm.service;
 
+import com.neonnexus.vcdm.common.ErrorConstant;
 import com.neonnexus.vcdm.common.PageResult;
 import com.neonnexus.vcdm.entity.po.project.Project;
+import com.neonnexus.vcdm.exception.VCDPException;
+import com.neonnexus.vcdm.mapper.EcuConfigMapper;
+import com.neonnexus.vcdm.mapper.EcuMapper;
 import com.neonnexus.vcdm.mapper.ProjectMapper;
+import com.neonnexus.vcdm.util.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +23,9 @@ public class ProjectService {
     private static final int MAX_SIZE = 60;
 
     private final ProjectMapper projectMapper;
+    private final EcuMapper ecuMapper;
+    private final EcuConfigMapper ecuConfigMapper;
+    private final SnowflakeIdGenerator snowflakeIdGenerator;
 
     public PageResult<Project> listProjects(Integer page, Integer size) {
         int safePage = page == null || page < 1 ? DEFAULT_PAGE : page;
@@ -30,26 +38,40 @@ public class ProjectService {
     }
 
     public Project getProject(Long id) {
-        return projectMapper.findById(id);
-    }
-
-    @Transactional
-    public Project createProject(Project project) {
-        normalize(project);
-        projectMapper.insert(project);
+        Project project = projectMapper.findById(id);
+        if (project == null) {
+            throw new VCDPException(ErrorConstant.Project.NOT_FOUND);
+        }
         return project;
     }
 
     @Transactional
+    public Project createProject(Project project) {
+        normalize(project, null);
+        project.setId(snowflakeIdGenerator.nextId());
+        projectMapper.insert(project);
+        return projectMapper.findById(project.getId());
+    }
+
+    @Transactional
     public Project updateProject(Long id, Project project) {
+        Project existing = projectMapper.findById(id);
+        if (existing == null) {
+            throw new VCDPException(ErrorConstant.Project.NOT_FOUND);
+        }
         project.setId(id);
-        normalize(project);
+        normalize(project, id);
         projectMapper.update(project);
         return projectMapper.findById(id);
     }
 
     @Transactional
     public boolean deleteProject(Long id) {
+        Project existing = projectMapper.findById(id);
+        if (existing == null) {
+            throw new VCDPException(ErrorConstant.Project.NOT_FOUND);
+        }
+        cascadeDeleteEcus(Collections.singletonList(id));
         return projectMapper.deleteById(id) > 0;
     }
 
@@ -58,14 +80,29 @@ public class ProjectService {
         if (ids == null || ids.isEmpty()) {
             return 0;
         }
+        cascadeDeleteEcus(ids);
         return projectMapper.deleteBatch(ids);
     }
 
-    private void normalize(Project project) {
-        if (project.getName() == null || project.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("工程名称不能为空");
+    private void cascadeDeleteEcus(List<Long> projectIds) {
+        List<Long> ecuIds = ecuMapper.findIdsByProjectIds(projectIds);
+        if (ecuIds != null && !ecuIds.isEmpty()) {
+            ecuConfigMapper.deleteForwardInfoByEcuIds(ecuIds);
+            ecuConfigMapper.deleteCanInterfacesByEcuIds(ecuIds);
+            ecuConfigMapper.deleteLinInterfacesByEcuIds(ecuIds);
+            ecuConfigMapper.deleteEthInterfacesByEcuIds(ecuIds);
+        }
+        ecuMapper.deleteByProjectIds(projectIds);
+    }
+
+    private void normalize(Project project, Long excludeId) {
+        if (project == null || project.getName() == null || project.getName().trim().isEmpty()) {
+            throw new VCDPException(ErrorConstant.Project.NAME_EMPTY);
         }
         project.setName(project.getName().trim());
+        if (projectMapper.countByName(project.getName(), excludeId) > 0) {
+            throw new VCDPException(ErrorConstant.Project.NAME_DUPLICATE);
+        }
         if (project.getDescription() != null) {
             String description = project.getDescription().trim();
             project.setDescription(description.isEmpty() ? null : description);

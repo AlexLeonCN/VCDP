@@ -59,16 +59,6 @@
           <el-form ref="ecuFormRef" :model="ecuForm" :rules="ecuRules" label-width="140px">
             <el-row :gutter="16">
               <el-col :span="12">
-                <el-form-item label="ID">
-                  <el-input v-model="ecuForm.id" disabled placeholder="自动生成" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="ProjectId">
-                  <el-input v-model="ecuForm.projectId" disabled placeholder="自动关联工程" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
                 <el-form-item label="名称" prop="name">
                   <el-input v-model="ecuForm.name" :disabled="isView" maxlength="100" show-word-limit />
                 </el-form-item>
@@ -79,23 +69,23 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="MAC" prop="mac">
-                  <el-input v-model="ecuForm.mac" :disabled="isView" @input="handleMacInput" placeholder="例如 AA:BB:CC:DD:EE:FF" />
+                <el-form-item label="MAC地址" prop="mac">
+                  <MacAddressInput v-model="ecuForm.mac" :disabled="isView" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="IP" prop="ip">
-                  <el-input v-model="ecuForm.ip" :disabled="isView" placeholder="例如 192.168.1.10" />
+                <el-form-item label="IP地址" prop="ip">
+                  <IpAddressInput v-model="ecuForm.ip" :disabled="isView" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="端口号" prop="port">
-                  <el-input-number v-model="ecuForm.port" :disabled="isView" :min="1" :max="65535" controls-position="right" />
+                  <el-input-number v-model="ecuForm.port" :disabled="isView" :min="0" controls-position="right" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="部件索引号" prop="index">
-                  <el-input-number v-model="ecuForm.index" :disabled="isView" :min="1" controls-position="right" />
+                <el-form-item label="设备索引" prop="index">
+                  <el-input-number v-model="ecuForm.index" :disabled="isView" :min="0" controls-position="right" />
                 </el-form-item>
               </el-col>
               <el-col :span="24">
@@ -118,37 +108,22 @@
           <el-form ref="forwardFormRef" :model="forwardForm" :rules="forwardRules" label-width="170px">
             <el-row :gutter="16">
               <el-col :span="12">
-                <el-form-item label="ID">
-                  <el-input v-model="forwardForm.id" disabled placeholder="自动生成" />
+                <el-form-item label="pFlash空间起始地址" prop="pFlashMemoryStartAddress">
+                  <el-input v-model="forwardForm.pFlashMemoryStartAddress" :disabled="isView" placeholder="十六进制，如 0x1000" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="ECU ID">
-                  <el-input v-model="forwardForm.ecuId" disabled placeholder="自动关联ECU" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="ProjectId">
-                  <el-input v-model="forwardForm.projectId" disabled placeholder="自动关联工程" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="P Flash起始地址" prop="pFlashMemoryStartAddress">
-                  <el-input v-model="forwardForm.pFlashMemoryStartAddress" :disabled="isView" placeholder="十六进制" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="P Flash大小限制" prop="pFlashMemorySizeLimit">
+                <el-form-item label="pFlash空间大小" prop="pFlashMemorySizeLimit">
                   <el-input v-model="forwardForm.pFlashMemorySizeLimit" :disabled="isView" placeholder="十六进制" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="RAM起始地址" prop="ramMemoryStartAddress">
+                <el-form-item label="RAM空间起始地址" prop="ramMemoryStartAddress">
                   <el-input v-model="forwardForm.ramMemoryStartAddress" :disabled="isView" placeholder="十六进制" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="RAM大小限制" prop="ramMemorySizeLimit">
+                <el-form-item label="RAM空间大小" prop="ramMemorySizeLimit">
                   <el-input v-model="forwardForm.ramMemorySizeLimit" :disabled="isView" placeholder="十六进制" />
                 </el-form-item>
               </el-col>
@@ -163,24 +138,46 @@
             </el-button>
           </div>
           <el-table v-if="canInterfaces.length > 0" :data="canInterfaces" border>
-            <el-table-column label="接口名称">
+            <el-table-column label="CAN接口名称" min-width="140">
               <template #default="{ row }">
                 <el-input v-model="row.interfaceName" :disabled="isView" />
               </template>
             </el-table-column>
-            <el-table-column label="接口ID" width="180">
+            <el-table-column label="通道ID" width="130">
               <template #default="{ row }">
-                <el-input-number v-model="row.channelId" :disabled="isView" :min="1" controls-position="right" />
+                <el-input-number v-model="row.channelId" :disabled="isView" :min="0" controls-position="right" />
               </template>
             </el-table-column>
-            <el-table-column label="接口类型" width="220">
+            <el-table-column label="端口号" width="130">
               <template #default="{ row }">
-                <el-select v-model="row.interfaceType" :disabled="isView" placeholder="请选择">
-                  <el-option v-for="option in canInterfaceTypeOptions" :key="option.value" :label="option.label" :value="option.value" />
+                <el-input-number v-model="row.port" :disabled="isView" :min="0" controls-position="right" />
+              </template>
+            </el-table-column>
+            <el-table-column label="接口类型" width="140">
+              <template #default="{ row }">
+                <el-select v-model="row.type" :disabled="isView" placeholder="请选择">
+                  <el-option
+                    v-for="option in canInterfaceTypeOptions"
+                    :key="option.code"
+                    :label="option.name"
+                    :value="option.code"
+                  />
                 </el-select>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="120">
+            <el-table-column label="连接类型" width="160">
+              <template #default="{ row }">
+                <el-select v-model="row.connType" :disabled="isView" placeholder="请选择">
+                  <el-option
+                    v-for="option in canConnTypeOptions"
+                    :key="option.code"
+                    :label="option.name"
+                    :value="option.code"
+                  />
+                </el-select>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="100">
               <template #default="{ $index }">
                 <el-button text type="danger" :disabled="isView" @click="removeCanInterface($index)">删除</el-button>
               </template>
@@ -196,17 +193,22 @@
             </el-button>
           </div>
           <el-table v-if="linInterfaces.length > 0" :data="linInterfaces" border>
-            <el-table-column label="接口名称">
+            <el-table-column label="LIN接口名称" min-width="160">
               <template #default="{ row }">
                 <el-input v-model="row.interfaceName" :disabled="isView" />
               </template>
             </el-table-column>
-            <el-table-column label="接口ID" width="180">
+            <el-table-column label="通道ID" width="160">
               <template #default="{ row }">
-                <el-input-number v-model="row.channelId" :disabled="isView" :min="1" controls-position="right" />
+                <el-input-number v-model="row.channelId" :disabled="isView" :min="0" controls-position="right" />
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="120">
+            <el-table-column label="端口号" width="160">
+              <template #default="{ row }">
+                <el-input-number v-model="row.port" :disabled="isView" :min="0" controls-position="right" />
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="100">
               <template #default="{ $index }">
                 <el-button text type="danger" :disabled="isView" @click="removeLinInterface($index)">删除</el-button>
               </template>
@@ -222,19 +224,34 @@
             </el-button>
           </div>
           <el-table v-if="ethInterfaces.length > 0" :data="ethInterfaces" border>
-            <el-table-column label="接口名称">
+            <el-table-column label="ETH接口名称" min-width="140">
               <template #default="{ row }">
                 <el-input v-model="row.interfaceName" :disabled="isView" />
               </template>
             </el-table-column>
-            <el-table-column label="接口类型" width="200">
+            <el-table-column label="通道ID" width="130">
+              <template #default="{ row }">
+                <el-input-number v-model="row.channelId" :disabled="isView" :min="0" controls-position="right" />
+              </template>
+            </el-table-column>
+            <el-table-column label="端口号" width="130">
+              <template #default="{ row }">
+                <el-input-number v-model="row.port" :disabled="isView" :min="0" controls-position="right" />
+              </template>
+            </el-table-column>
+            <el-table-column label="接口类型" width="140">
               <template #default="{ row }">
                 <el-select v-model="row.type" :disabled="isView" placeholder="请选择">
-                  <el-option v-for="option in ethInterfaceTypeOptions" :key="option.value" :label="option.label" :value="option.value" />
+                  <el-option
+                    v-for="option in ethInterfaceTypeOptions"
+                    :key="option.code"
+                    :label="option.name"
+                    :value="option.code"
+                  />
                 </el-select>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="120">
+            <el-table-column label="操作" width="100">
               <template #default="{ $index }">
                 <el-button text type="danger" :disabled="isView" @click="removeEthInterface($index)">删除</el-button>
               </template>
@@ -261,10 +278,15 @@ import {
   batchDeleteEcus,
   createEcu,
   deleteEcu,
+  fetchCanConnTypes,
+  fetchCanInterfaceTypes,
   fetchEcu,
   fetchEcus,
+  fetchEthInterfaceTypes,
   updateEcu
 } from '../api';
+import MacAddressInput from './MacAddressInput.vue';
+import IpAddressInput from './IpAddressInput.vue';
 
 const MAC_REGEX = /^[0-9A-F]{12}$/;
 const HEX_REGEX = /^(0x)?[0-9a-fA-F]+$/;
@@ -273,6 +295,10 @@ const IPV4_REGEX =
 
 export default {
   name: 'EcuList',
+  components: {
+    MacAddressInput,
+    IpAddressInput
+  },
   setup() {
     const route = useRoute();
     const projectId = computed(() => route.params.id);
@@ -314,16 +340,9 @@ export default {
     const canInterfaces = ref([]);
     const linInterfaces = ref([]);
     const ethInterfaces = ref([]);
-
-    const canInterfaceTypeOptions = [
-      { label: 'MCU直连CAN', value: 0 },
-      { label: 'LSW下挂CAN', value: 1 }
-    ];
-
-    const ethInterfaceTypeOptions = [
-      { label: '百兆口', value: 0 },
-      { label: '千兆口', value: 1 }
-    ];
+    const canInterfaceTypeOptions = ref([]);
+    const canConnTypeOptions = ref([]);
+    const ethInterfaceTypeOptions = ref([]);
 
     const isView = computed(() => dialogMode.value === 'view');
     const dialogTitle = computed(() => {
@@ -335,11 +354,7 @@ export default {
     const ecuRules = {
       name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
       mac: [
-        {
-          required: true,
-          message: '请输入 MAC 地址',
-          trigger: 'blur'
-        },
+        { required: true, message: '请输入 MAC 地址', trigger: 'change' },
         {
           validator: (_, value, callback) => {
             const normalized = normalizeMac(value);
@@ -349,11 +364,11 @@ export default {
               callback();
             }
           },
-          trigger: 'blur'
+          trigger: 'change'
         }
       ],
       ip: [
-        { required: true, message: '请输入 IP 地址', trigger: 'blur' },
+        { required: true, message: '请输入 IP 地址', trigger: 'change' },
         {
           validator: (_, value, callback) => {
             if (!IPV4_REGEX.test(value || '')) {
@@ -362,66 +377,47 @@ export default {
               callback();
             }
           },
-          trigger: 'blur'
+          trigger: 'change'
         }
       ],
       port: [{ required: true, message: '请输入端口号', trigger: 'change' }],
-      index: [{ required: true, message: '请输入部件索引号', trigger: 'change' }]
+      index: [{ required: true, message: '请输入设备索引', trigger: 'change' }]
     };
 
+    const createHexRule = message => [
+      { required: true, message, trigger: 'blur' },
+      {
+        validator: (_, value, callback) => {
+          if (!HEX_REGEX.test(value || '')) {
+            callback(new Error('请输入大于0的十六进制'));
+          } else {
+            callback();
+          }
+        },
+        trigger: 'blur'
+      }
+    ];
+
     const forwardRules = {
-      pFlashMemoryStartAddress: [
-        { required: true, message: '请输入 P Flash 起始地址', trigger: 'blur' },
-        {
-          validator: (_, value, callback) => {
-            if (!HEX_REGEX.test(value || '')) {
-              callback(new Error('请输入十六进制'));
-            } else {
-              callback();
-            }
-          },
-          trigger: 'blur'
-        }
-      ],
-      pFlashMemorySizeLimit: [
-        { required: true, message: '请输入 P Flash 大小限制', trigger: 'blur' },
-        {
-          validator: (_, value, callback) => {
-            if (!HEX_REGEX.test(value || '')) {
-              callback(new Error('请输入十六进制'));
-            } else {
-              callback();
-            }
-          },
-          trigger: 'blur'
-        }
-      ],
-      ramMemoryStartAddress: [
-        { required: true, message: '请输入 RAM 起始地址', trigger: 'blur' },
-        {
-          validator: (_, value, callback) => {
-            if (!HEX_REGEX.test(value || '')) {
-              callback(new Error('请输入十六进制'));
-            } else {
-              callback();
-            }
-          },
-          trigger: 'blur'
-        }
-      ],
-      ramMemorySizeLimit: [
-        { required: true, message: '请输入 RAM 大小限制', trigger: 'blur' },
-        {
-          validator: (_, value, callback) => {
-            if (!HEX_REGEX.test(value || '')) {
-              callback(new Error('请输入十六进制'));
-            } else {
-              callback();
-            }
-          },
-          trigger: 'blur'
-        }
-      ]
+      pFlashMemoryStartAddress: createHexRule('请输入 pFlash 空间起始地址'),
+      pFlashMemorySizeLimit: createHexRule('请输入 pFlash 空间大小'),
+      ramMemoryStartAddress: createHexRule('请输入 RAM 空间起始地址'),
+      ramMemorySizeLimit: createHexRule('请输入 RAM 空间大小')
+    };
+
+    const loadEnumOptions = async () => {
+      try {
+        const [canTypes, canConnTypes, ethTypes] = await Promise.all([
+          fetchCanInterfaceTypes(),
+          fetchCanConnTypes(),
+          fetchEthInterfaceTypes()
+        ]);
+        canInterfaceTypeOptions.value = canTypes || [];
+        canConnTypeOptions.value = canConnTypes || [];
+        ethInterfaceTypeOptions.value = ethTypes || [];
+      } catch (error) {
+        ElMessage.error(error.message || '加载枚举失败');
+      }
     };
 
     const loadEcus = async () => {
@@ -438,7 +434,7 @@ export default {
       }
     };
 
-    const handlePageChange = async (nextPage) => {
+    const handlePageChange = async nextPage => {
       page.value = nextPage;
       await loadEcus();
     };
@@ -468,7 +464,7 @@ export default {
       activeTab.value = 'base';
     };
 
-    const applyDetail = (detail) => {
+    const applyDetail = detail => {
       const ecu = detail.ecu || {};
       const forwardInfo = detail.forwardInfo || {};
       ecuForm.id = ecu.id || '';
@@ -476,7 +472,7 @@ export default {
       ecuForm.name = ecu.name || '';
       ecuForm.type = ecu.type || '';
       ecuForm.desc = ecu.desc || '';
-      ecuForm.mac = formatMac(ecu.mac || '');
+      ecuForm.mac = normalizeMac(ecu.mac || '');
       ecuForm.ip = ecu.ip || '';
       ecuForm.port = ecu.port ?? null;
       ecuForm.index = ecu.index ?? null;
@@ -487,15 +483,9 @@ export default {
       forwardForm.pFlashMemorySizeLimit = forwardInfo.pFlashMemorySizeLimit || '';
       forwardForm.ramMemoryStartAddress = forwardInfo.ramMemoryStartAddress || '';
       forwardForm.ramMemorySizeLimit = forwardInfo.ramMemorySizeLimit || '';
-      canInterfaces.value = (detail.canInterfaces || []).map(item => ({
-        ...item
-      }));
-      linInterfaces.value = (detail.linInterfaces || []).map(item => ({
-        ...item
-      }));
-      ethInterfaces.value = (detail.ethInterfaces || []).map(item => ({
-        ...item
-      }));
+      canInterfaces.value = (detail.canInterfaces || []).map(item => ({ ...item }));
+      linInterfaces.value = (detail.linInterfaces || []).map(item => ({ ...item }));
+      ethInterfaces.value = (detail.ethInterfaces || []).map(item => ({ ...item }));
     };
 
     const openCreateDialog = () => {
@@ -504,19 +494,19 @@ export default {
       dialogVisible.value = true;
     };
 
-    const openViewDialog = async (ecu) => {
+    const openViewDialog = async ecu => {
       dialogMode.value = 'view';
       await loadDetail(ecu.id);
       dialogVisible.value = true;
     };
 
-    const openEditDialog = async (ecu) => {
+    const openEditDialog = async ecu => {
       dialogMode.value = 'edit';
       await loadDetail(ecu.id);
       dialogVisible.value = true;
     };
 
-    const loadDetail = async (ecuId) => {
+    const loadDetail = async ecuId => {
       resetForms();
       try {
         const detail = await fetchEcu(projectId.value, ecuId);
@@ -557,8 +547,8 @@ export default {
       }
     };
 
-    const buildPayload = () => {
-      const ecu = {
+    const buildPayload = () => ({
+      ecu: {
         id: ecuForm.id || undefined,
         projectId: projectId.value,
         name: ecuForm.name,
@@ -568,53 +558,74 @@ export default {
         ip: ecuForm.ip,
         port: ecuForm.port,
         index: ecuForm.index
-      };
-      const forwardInfo = {
+      },
+      forwardInfo: {
         id: forwardForm.id || undefined,
         ecuId: ecuForm.id || undefined,
         projectId: projectId.value,
-        pFlashMemoryStartAddress: normalizeHex(forwardForm.pFlashMemoryStartAddress),
-        pFlashMemorySizeLimit: normalizeHex(forwardForm.pFlashMemorySizeLimit),
-        ramMemoryStartAddress: normalizeHex(forwardForm.ramMemoryStartAddress),
-        ramMemorySizeLimit: normalizeHex(forwardForm.ramMemorySizeLimit)
-      };
-      return {
-        ecu,
-        forwardInfo,
-        canInterfaces: canInterfaces.value.map(item => ({
-          interfaceName: item.interfaceName,
-          channelId: item.channelId,
-          interfaceType: item.interfaceType
-        })),
-        linInterfaces: linInterfaces.value.map(item => ({
-          interfaceName: item.interfaceName,
-          channelId: item.channelId
-        })),
-        ethInterfaces: ethInterfaces.value.map(item => ({
-          interfaceName: item.interfaceName,
-          type: item.type
-        }))
-      };
-    };
+        pFlashMemoryStartAddress: forwardForm.pFlashMemoryStartAddress,
+        pFlashMemorySizeLimit: forwardForm.pFlashMemorySizeLimit,
+        ramMemoryStartAddress: forwardForm.ramMemoryStartAddress,
+        ramMemorySizeLimit: forwardForm.ramMemorySizeLimit
+      },
+      canInterfaces: canInterfaces.value.map(item => ({
+        interfaceName: item.interfaceName,
+        channelId: item.channelId,
+        port: item.port,
+        type: item.type,
+        connType: item.connType
+      })),
+      linInterfaces: linInterfaces.value.map(item => ({
+        interfaceName: item.interfaceName,
+        channelId: item.channelId,
+        port: item.port
+      })),
+      ethInterfaces: ethInterfaces.value.map(item => ({
+        interfaceName: item.interfaceName,
+        channelId: item.channelId,
+        port: item.port,
+        type: item.type
+      }))
+    });
 
     const validateInterfaces = () => {
+      const names = new Set();
+      const ports = new Set();
+
       for (const item of canInterfaces.value) {
         if (!item.interfaceName) return '请填写 CAN 接口名称';
-        if (!item.channelId) return '请填写 CAN 接口ID';
-        if (item.interfaceType === null || item.interfaceType === undefined) return '请选择 CAN 接口类型';
+        if (item.channelId === null || item.channelId === undefined) return '请填写 CAN 接口通道ID';
+        if (item.port === null || item.port === undefined) return '请填写 CAN 接口端口号';
+        if (item.type === null || item.type === undefined) return '请选择 CAN 接口类型';
+        if (item.connType === null || item.connType === undefined) return '请选择 CAN 接口连接类型';
+        if (names.has(item.interfaceName)) return '接口名称不可重复';
+        if (ports.has(item.port)) return '接口端口号不可重复';
+        names.add(item.interfaceName);
+        ports.add(item.port);
       }
       for (const item of linInterfaces.value) {
         if (!item.interfaceName) return '请填写 LIN 接口名称';
-        if (!item.channelId) return '请填写 LIN 接口ID';
+        if (item.channelId === null || item.channelId === undefined) return '请填写 LIN 接口通道ID';
+        if (item.port === null || item.port === undefined) return '请填写 LIN 接口端口号';
+        if (names.has(item.interfaceName)) return '接口名称不可重复';
+        if (ports.has(item.port)) return '接口端口号不可重复';
+        names.add(item.interfaceName);
+        ports.add(item.port);
       }
       for (const item of ethInterfaces.value) {
         if (!item.interfaceName) return '请填写 ETH 接口名称';
+        if (item.channelId === null || item.channelId === undefined) return '请填写 ETH 接口通道ID';
+        if (item.port === null || item.port === undefined) return '请填写 ETH 接口端口号';
         if (item.type === null || item.type === undefined) return '请选择 ETH 接口类型';
+        if (names.has(item.interfaceName)) return '接口名称不可重复';
+        if (ports.has(item.port)) return '接口端口号不可重复';
+        names.add(item.interfaceName);
+        ports.add(item.port);
       }
       return '';
     };
 
-    const handleDelete = async (ecu) => {
+    const handleDelete = async ecu => {
       try {
         await ElMessageBox.confirm(`确定删除 ECU “${ecu.name}”吗？`, '删除 ECU', {
           confirmButtonText: '删除',
@@ -665,63 +676,47 @@ export default {
       }
     };
 
-    const handleMacInput = (value) => {
-      ecuForm.mac = formatMac(value);
-    };
-
     const addCanInterface = () => {
       canInterfaces.value = [
         ...canInterfaces.value,
-        { interfaceName: '', channelId: null, interfaceType: null }
+        { interfaceName: '', channelId: null, port: null, type: null, connType: null }
       ];
     };
 
-    const removeCanInterface = (index) => {
+    const removeCanInterface = index => {
       canInterfaces.value.splice(index, 1);
     };
 
     const addLinInterface = () => {
-      linInterfaces.value = [...linInterfaces.value, { interfaceName: '', channelId: null }];
+      linInterfaces.value = [...linInterfaces.value, { interfaceName: '', channelId: null, port: null }];
     };
 
-    const removeLinInterface = (index) => {
+    const removeLinInterface = index => {
       linInterfaces.value.splice(index, 1);
     };
 
     const addEthInterface = () => {
-      ethInterfaces.value = [...ethInterfaces.value, { interfaceName: '', type: null }];
+      ethInterfaces.value = [...ethInterfaces.value, { interfaceName: '', channelId: null, port: null, type: null }];
     };
 
-    const removeEthInterface = (index) => {
+    const removeEthInterface = index => {
       ethInterfaces.value.splice(index, 1);
     };
 
-    const normalizeMac = (value) => {
+    const normalizeMac = value => {
       if (!value) return '';
-      return value.replace(/[^0-9a-fA-F]/g, '').toUpperCase();
+      return String(value).replace(/[^0-9a-fA-F]/g, '').toUpperCase();
     };
 
-    const formatMac = (value) => {
-      const normalized = normalizeMac(value).slice(0, 12);
-      if (!normalized) return '';
-      const parts = normalized.match(/.{1,2}/g) || [];
-      return parts.join(':');
-    };
+    onMounted(async () => {
+      await loadEnumOptions();
+      await loadEcus();
+    });
 
-    const normalizeHex = (value) => {
-      if (!value) return '';
-      const trimmed = value.trim();
-      if (trimmed.startsWith('0x') || trimmed.startsWith('0X')) {
-        return trimmed.substring(2).toUpperCase();
-      }
-      return trimmed.toUpperCase();
-    };
-
-    onMounted(loadEcus);
-    watch(projectId, () => {
+    watch(projectId, async () => {
       page.value = 1;
       selectedIds.value = [];
-      loadEcus();
+      await loadEcus();
     });
 
     return {
@@ -734,9 +729,9 @@ export default {
       addCanInterface,
       addEthInterface,
       addLinInterface,
+      canConnTypeOptions,
       canInterfaceTypeOptions,
       canInterfaces,
-      dialogMode,
       dialogTitle,
       dialogVisible,
       ecuForm,
@@ -750,7 +745,6 @@ export default {
       forwardRules,
       handleBatchDelete,
       handleDelete,
-      handleMacInput,
       handlePageChange,
       isView,
       linInterfaces,
@@ -779,12 +773,11 @@ export default {
 }
 
 .ecu-toolbar {
-  max-width: 1200px;
-  margin: 0 auto 20px;
   display: flex;
   justify-content: space-between;
   gap: 16px;
   align-items: flex-start;
+  margin-bottom: 20px;
 }
 
 .ecu-toolbar h2 {
@@ -794,50 +787,39 @@ export default {
 
 .ecu-toolbar p {
   margin: 0;
-  color: #606266;
+  color: #909399;
 }
 
 .toolbar-actions {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   flex-wrap: wrap;
-  justify-content: flex-end;
 }
 
 .ecu-grid {
-  max-width: 1200px;
-  min-height: 260px;
-  margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
 }
 
 .ecu-card {
   position: relative;
-  min-height: 150px;
-  padding: 24px 16px 18px;
-  border: 1px solid #e4e7ed;
-  border-radius: 14px;
   background: #fff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  border: 1px solid #ebeef5;
+  border-radius: 12px;
+  padding: 20px 18px 18px;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .ecu-card:hover {
-  transform: translateY(-3px);
-  border-color: #409eff;
-  box-shadow: 0 10px 24px rgba(64, 158, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
 }
 
 .ecu-select {
   position: absolute;
-  top: 10px;
+  top: 12px;
   left: 12px;
 }
 
@@ -846,62 +828,26 @@ export default {
   top: 8px;
   right: 8px;
   display: flex;
-  gap: 2px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.ecu-card:hover .ecu-actions {
-  opacity: 1;
 }
 
 .ecu-name {
-  max-width: 100%;
-  margin: 0;
-  color: #303133;
+  margin: 24px 0 8px;
   font-size: 18px;
-  font-weight: 700;
-  line-height: 1.4;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: #303133;
 }
 
 .ecu-type {
-  margin-top: 8px;
+  margin: 0;
   color: #606266;
-  font-size: 14px;
 }
 
 .pagination-wrapper {
-  max-width: 1200px;
-  margin: 24px auto 0;
+  margin-top: 24px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
 }
 
 .interface-toolbar {
   margin-bottom: 12px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.ecu-dialog :deep(.el-dialog__body) {
-  padding-top: 8px;
-}
-
-.ecu-dialog :deep(.el-form-item) {
-  margin-bottom: 18px;
-}
-
-@media (max-width: 768px) {
-  .ecu-toolbar {
-    flex-direction: column;
-  }
-
-  .toolbar-actions {
-    justify-content: flex-start;
-  }
 }
 </style>

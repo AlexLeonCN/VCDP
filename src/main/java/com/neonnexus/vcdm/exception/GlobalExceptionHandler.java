@@ -40,7 +40,8 @@ public class GlobalExceptionHandler {
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining(", "));
         log.warn("参数校验异常: {}", message);
-        return Result.error(ErrorConstant.CommonErrorCode.BAD_REQUEST, "参数校验失败: " + message);
+        return Result.error(ErrorConstant.Common.BAD_REQUEST.getKey(),
+                "参数校验失败: " + message);
     }
 
     /**
@@ -53,17 +54,8 @@ public class GlobalExceptionHandler {
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining(", "));
         log.warn("参数绑定异常: {}", message);
-        return Result.error(ErrorConstant.CommonErrorCode.BAD_REQUEST, "参数绑定失败: " + message);
-    }
-
-    /**
-     * 处理业务参数校验异常
-     */
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<Void> handleIllegalArgumentException(IllegalArgumentException e) {
-        log.warn("参数校验异常: {}", e.getMessage());
-        return Result.error(ErrorConstant.CommonErrorCode.BAD_REQUEST, e.getMessage());
+        return Result.error(ErrorConstant.Common.BAD_REQUEST.getKey(),
+                "参数绑定失败: " + message);
     }
 
     /**
@@ -73,7 +65,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Result<Void> handleRuntimeException(RuntimeException e) {
         log.error("运行时异常", e);
-        return Result.error(ErrorConstant.CommonErrorCode.INTERNAL_ERROR, "系统内部错误，请稍后重试");
+        return Result.error(ErrorConstant.Common.INTERNAL_ERROR);
     }
 
     /**
@@ -83,7 +75,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Result<Void> handleException(Exception e) {
         log.error("系统异常", e);
-        return Result.error(ErrorConstant.CommonErrorCode.INTERNAL_ERROR, "系统异常，请稍后重试");
+        return Result.error(ErrorConstant.Common.INTERNAL_ERROR);
     }
 }
-

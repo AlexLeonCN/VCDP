@@ -34,29 +34,27 @@
         <el-empty v-if="!loading && projects.length === 0" description="暂无工程，请新增工程" />
 
         <div v-else v-loading="loading" class="project-grid">
-          <el-tooltip
+          <article
             v-for="project in projects"
             :key="project.id"
-            :content="project.description"
-            :disabled="!project.description"
-            placement="top"
+            class="project-card"
+            @click="enterProject(project)"
           >
-            <article class="project-card" @click="enterProject(project)">
-              <el-checkbox
-                class="project-select"
-                :model-value="selectedIds.includes(project.id)"
-                @click.stop
-                @change="checked => toggleSelection(project.id, checked)"
-              />
+            <el-checkbox
+              class="project-select"
+              :model-value="selectedIds.includes(project.id)"
+              @click.stop
+              @change="checked => toggleSelection(project.id, checked)"
+            />
 
-              <div class="project-actions" @click.stop>
-                <el-button circle text :icon="Edit" @click="openEditDialog(project)" />
-                <el-button circle text type="danger" :icon="Delete" @click="handleDelete(project)" />
-              </div>
+            <div class="project-actions" @click.stop>
+              <el-button circle text :icon="Edit" @click="openEditDialog(project)" />
+              <el-button circle text type="danger" :icon="Delete" @click="handleDelete(project)" />
+            </div>
 
-              <h3 class="project-name">{{ project.name }}</h3>
-            </article>
-          </el-tooltip>
+            <h3 class="project-name">{{ project.name }}</h3>
+            <p class="project-desc">{{ project.description || '暂无描述' }}</p>
+          </article>
         </div>
 
         <div class="pagination-wrapper" v-if="total > 0">
@@ -89,7 +87,7 @@
             maxlength="500"
             show-word-limit
             :rows="4"
-            placeholder="可选，鼠标悬浮工程卡片时展示"
+            placeholder="可选，工程描述"
           />
         </el-form-item>
       </el-form>
@@ -491,6 +489,19 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.project-desc {
+  max-width: 100%;
+  margin: 10px 0 0;
+  color: #606266;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .pagination-wrapper {

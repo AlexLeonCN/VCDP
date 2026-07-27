@@ -32,11 +32,7 @@ public class EcuController {
 
     @GetMapping("/api/projects/{projectId}/ecus/{ecuId}")
     public Result<EcuConfig> getEcu(@PathVariable Long projectId, @PathVariable Long ecuId) {
-        EcuConfig config = ecuService.getEcuConfig(projectId, ecuId);
-        if (config == null) {
-            return Result.error(404, "ECU不存在");
-        }
-        return Result.success(config);
+        return Result.success(ecuService.getEcuConfig(projectId, ecuId));
     }
 
     @PostMapping("/api/projects/{projectId}/ecus")
@@ -48,18 +44,12 @@ public class EcuController {
     public Result<EcuConfig> updateEcu(@PathVariable Long projectId,
                                        @PathVariable Long ecuId,
                                        @RequestBody EcuConfig request) {
-        EcuConfig updated = ecuService.updateEcu(projectId, ecuId, request);
-        if (updated == null) {
-            return Result.error(404, "ECU不存在");
-        }
-        return Result.success("ECU更新成功", updated);
+        return Result.success("ECU更新成功", ecuService.updateEcu(projectId, ecuId, request));
     }
 
     @DeleteMapping("/api/projects/{projectId}/ecus/{ecuId}")
     public Result<Void> deleteEcu(@PathVariable Long projectId, @PathVariable Long ecuId) {
-        if (!ecuService.deleteEcu(projectId, ecuId)) {
-            return Result.error(404, "ECU不存在");
-        }
+        ecuService.deleteEcu(projectId, ecuId);
         return Result.success("ECU删除成功", null);
     }
 

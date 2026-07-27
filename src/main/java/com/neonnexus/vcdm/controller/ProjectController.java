@@ -31,11 +31,7 @@ public class ProjectController {
 
     @GetMapping("/api/projects/{id}")
     public Result<Project> getProject(@PathVariable Long id) {
-        Project project = projectService.getProject(id);
-        if (project == null) {
-            return Result.error(404, "工程不存在");
-        }
-        return Result.success(project);
+        return Result.success(projectService.getProject(id));
     }
 
     @PostMapping("/api/projects")
@@ -45,18 +41,12 @@ public class ProjectController {
 
     @PutMapping("/api/projects/{id}")
     public Result<Project> updateProject(@PathVariable Long id, @RequestBody Project project) {
-        Project updated = projectService.updateProject(id, project);
-        if (updated == null) {
-            return Result.error(404, "工程不存在");
-        }
-        return Result.success("工程更新成功", updated);
+        return Result.success("工程更新成功", projectService.updateProject(id, project));
     }
 
     @DeleteMapping("/api/projects/{id}")
     public Result<Void> deleteProject(@PathVariable Long id) {
-        if (!projectService.deleteProject(id)) {
-            return Result.error(404, "工程不存在");
-        }
+        projectService.deleteProject(id);
         return Result.success("工程删除成功", null);
     }
 

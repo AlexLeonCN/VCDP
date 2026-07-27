@@ -9,4 +9,5 @@ public class EcuLinInterface {
     private Long ecuId;
     private String interfaceName;
     private Integer channelId;
+    private Integer port;
 }

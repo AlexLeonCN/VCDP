@@ -18,7 +18,9 @@
         <result column="ecu_id" property="ecuId"/>
         <result column="interface_name" property="interfaceName"/>
         <result column="channel_id" property="channelId"/>
-        <result column="interface_type" property="interfaceType"/>
+        <result column="port" property="port"/>
+        <result column="can_type" property="type"/>
+        <result column="conn_type" property="connType"/>
     </resultMap>
 
     <resultMap id="EcuLinInterfaceResultMap" type="com.neonnexus.vcdm.entity.po.project.EcuLinInterface">
@@ -27,6 +29,7 @@
         <result column="ecu_id" property="ecuId"/>
         <result column="interface_name" property="interfaceName"/>
         <result column="channel_id" property="channelId"/>
+        <result column="port" property="port"/>
     </resultMap>
 
     <resultMap id="EcuEthInterfaceResultMap" type="com.neonnexus.vcdm.entity.po.project.EcuEthInterface">
@@ -34,6 +37,8 @@
         <result column="project_id" property="projectId"/>
         <result column="ecu_id" property="ecuId"/>
         <result column="interface_name" property="interfaceName"/>
+        <result column="channel_id" property="channelId"/>
+        <result column="port" property="port"/>
         <result column="port_type" property="type"/>
     </resultMap>
 
@@ -88,7 +93,9 @@
                ecu_id,
                interface_name,
                channel_id,
-               interface_type
+               port,
+               can_type,
+               conn_type
         FROM ecu_can_interface
         WHERE ecu_id = #{ecuId}
         ORDER BY id ASC
@@ -101,7 +108,9 @@
             ecu_id,
             interface_name,
             channel_id,
-            interface_type
+            port,
+            can_type,
+            conn_type
         )
         VALUES
         <foreach collection="items" item="item" separator=",">
@@ -110,7 +119,9 @@
              #{item.ecuId},
              #{item.interfaceName},
              #{item.channelId},
-             #{item.interfaceType})
+             #{item.port},
+             #{item.type},
+             #{item.connType})
         </foreach>
     </insert>
 
@@ -131,7 +142,8 @@
                project_id,
                ecu_id,
                interface_name,
-               channel_id
+               channel_id,
+               port
         FROM ecu_lin_interface
         WHERE ecu_id = #{ecuId}
         ORDER BY id ASC
@@ -143,7 +155,8 @@
             project_id,
             ecu_id,
             interface_name,
-            channel_id
+            channel_id,
+            port
         )
         VALUES
         <foreach collection="items" item="item" separator=",">
@@ -151,7 +164,8 @@
              #{item.projectId},
              #{item.ecuId},
              #{item.interfaceName},
-             #{item.channelId})
+             #{item.channelId},
+             #{item.port})
         </foreach>
     </insert>
 
@@ -172,6 +186,8 @@
                project_id,
                ecu_id,
                interface_name,
+               channel_id,
+               port,
                port_type
         FROM ecu_eth_interface
         WHERE ecu_id = #{ecuId}
@@ -184,6 +200,8 @@
             project_id,
             ecu_id,
             interface_name,
+            channel_id,
+            port,
             port_type
         )
         VALUES
@@ -192,6 +210,8 @@
              #{item.projectId},
              #{item.ecuId},
              #{item.interfaceName},
+             #{item.channelId},
+             #{item.port},
              #{item.type})
         </foreach>
     </insert>

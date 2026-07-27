@@ -1,6 +1,9 @@
 package com.neonnexus.vcdm.service;
 
+import com.neonnexus.vcdm.common.ErrorConstant;
 import com.neonnexus.vcdm.common.PageResult;
+import com.neonnexus.vcdm.common.Pair;
+import com.neonnexus.vcdm.common.enumation.CanInterfaceTypeEnum;
 import com.neonnexus.vcdm.common.enumation.EcuCanInterfaceTypeEnum;
 import com.neonnexus.vcdm.common.enumation.EthPortTypeEnum;
 import com.neonnexus.vcdm.entity.dto.EcuConfig;
@@ -9,8 +12,11 @@ import com.neonnexus.vcdm.entity.po.project.EcuCanInterface;
 import com.neonnexus.vcdm.entity.po.project.EcuEthInterface;
 import com.neonnexus.vcdm.entity.po.project.EcuForwardInfo;
 import com.neonnexus.vcdm.entity.po.project.EcuLinInterface;
+import com.neonnexus.vcdm.exception.VCDPException;
 import com.neonnexus.vcdm.mapper.EcuConfigMapper;
 import com.neonnexus.vcdm.mapper.EcuMapper;
+import com.neonnexus.vcdm.mapper.ProjectMapper;
+import com.neonnexus.vcdm.util.HexUtils;
 import com.neonnexus.vcdm.util.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,8 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 @Service
@@ -32,14 +40,13 @@ public class EcuService {
     private static final Pattern IPV4_PATTERN = Pattern.compile(
             "^(25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.(25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.(25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.(25[0-5]|2[0-4]\\d|1?\\d?\\d)$");
 
+    private final ProjectMapper projectMapper;
     private final EcuMapper ecuMapper;
     private final EcuConfigMapper ecuConfigMapper;
     private final SnowflakeIdGenerator snowflakeIdGenerator;
 
     public PageResult<Ecu> listEcus(Long projectId, Integer page, Integer size) {
-        if (projectId == null) {
-            return new PageResult<>(Collections.emptyList(), 0L, DEFAULT_PAGE, DEFAULT_SIZE);
-        }
+        ensureProjectExists(projectId);
         int safePage = page == null || page < 1 ? DEFAULT_PAGE : page;
         int safeSize = size == null || size < 1 ? DEFAULT_SIZE : Math.min(size, MAX_SIZE);
         int offset = (safePage - 1) * safeSize;
@@ -50,19 +57,22 @@ public class EcuService {
     }
 
     public EcuConfig getEcuConfig(Long projectId, Long ecuId) {
+        ensureProjectExists(projectId);
         Ecu ecu = ecuMapper.findById(ecuId);
         if (ecu == null || !Objects.equals(ecu.getProjectId(), projectId)) {
-            return null;
+            throw new VCDPException(ErrorConstant.Ecu.NOT_FOUND);
         }
         return buildEcuConfig(ecu);
     }
 
     @Transactional
     public EcuConfig createEcu(Long projectId, EcuConfig request) {
+        ensureProjectExists(projectId);
         Ecu ecu = requireEcu(request);
         EcuForwardInfo forwardInfo = requireForwardInfo(request);
 
         normalizeEcu(ecu, projectId, true);
+        ensureEcuUniqueness(ecu, null);
         ecuMapper.insert(ecu);
 
         normalizeForwardInfo(forwardInfo, projectId, ecu.getId(), true);
@@ -71,6 +81,7 @@ public class EcuService {
         List<EcuCanInterface> canInterfaces = normalizeCanInterfaces(request.getCanInterfaces(), projectId, ecu.getId());
         List<EcuLinInterface> linInterfaces = normalizeLinInterfaces(request.getLinInterfaces(), projectId, ecu.getId());
         List<EcuEthInterface> ethInterfaces = normalizeEthInterfaces(request.getEthInterfaces(), projectId, ecu.getId());
+        validateInterfaceUniqueness(canInterfaces, linInterfaces, ethInterfaces);
 
         insertInterfaces(canInterfaces, linInterfaces, ethInterfaces);
         return buildEcuConfig(ecu, forwardInfo, canInterfaces, linInterfaces, ethInterfaces);
@@ -78,14 +89,16 @@ public class EcuService {
 
     @Transactional
     public EcuConfig updateEcu(Long projectId, Long ecuId, EcuConfig request) {
+        ensureProjectExists(projectId);
         Ecu existing = ecuMapper.findById(ecuId);
         if (existing == null || !Objects.equals(existing.getProjectId(), projectId)) {
-            return null;
+            throw new VCDPException(ErrorConstant.Ecu.NOT_FOUND);
         }
 
         Ecu ecu = requireEcu(request);
         ecu.setId(ecuId);
         normalizeEcu(ecu, projectId, false);
+        ensureEcuUniqueness(ecu, ecuId);
         ecuMapper.update(ecu);
 
         EcuForwardInfo forwardInfo = requireForwardInfo(request);
@@ -100,6 +113,7 @@ public class EcuService {
         List<EcuCanInterface> canInterfaces = normalizeCanInterfaces(request.getCanInterfaces(), projectId, ecuId);
         List<EcuLinInterface> linInterfaces = normalizeLinInterfaces(request.getLinInterfaces(), projectId, ecuId);
         List<EcuEthInterface> ethInterfaces = normalizeEthInterfaces(request.getEthInterfaces(), projectId, ecuId);
+        validateInterfaceUniqueness(canInterfaces, linInterfaces, ethInterfaces);
         insertInterfaces(canInterfaces, linInterfaces, ethInterfaces);
 
         return buildEcuConfig(ecu, forwardInfo, canInterfaces, linInterfaces, ethInterfaces);
@@ -107,9 +121,10 @@ public class EcuService {
 
     @Transactional
     public boolean deleteEcu(Long projectId, Long ecuId) {
+        ensureProjectExists(projectId);
         Ecu ecu = ecuMapper.findById(ecuId);
         if (ecu == null || !Objects.equals(ecu.getProjectId(), projectId)) {
-            return false;
+            throw new VCDPException(ErrorConstant.Ecu.NOT_FOUND);
         }
         deleteConfigs(Collections.singletonList(ecuId));
         return ecuMapper.deleteById(ecuId) > 0;
@@ -117,7 +132,8 @@ public class EcuService {
 
     @Transactional
     public int deleteEcus(Long projectId, List<Long> ecuIds) {
-        if (projectId == null || ecuIds == null || ecuIds.isEmpty()) {
+        ensureProjectExists(projectId);
+        if (ecuIds == null || ecuIds.isEmpty()) {
             return 0;
         }
         List<Long> validIds = ecuMapper.findIdsByProjectId(projectId, ecuIds);
@@ -126,6 +142,12 @@ public class EcuService {
         }
         deleteConfigs(validIds);
         return ecuMapper.deleteBatchByProjectId(projectId, validIds);
+    }
+
+    private void ensureProjectExists(Long projectId) {
+        if (projectId == null || projectMapper.findById(projectId) == null) {
+            throw new VCDPException(ErrorConstant.Ecu.PROJECT_NOT_FOUND);
+        }
     }
 
     private void deleteConfigs(List<Long> ecuIds) {
@@ -172,20 +194,35 @@ public class EcuService {
     }
 
     private void normalizeEcu(Ecu ecu, Long projectId, boolean generateId) {
-        if (projectId == null) {
-            throw new IllegalArgumentException("工程ID不能为空");
-        }
         if (generateId) {
             ecu.setId(snowflakeIdGenerator.nextId());
         }
         ecu.setProjectId(projectId);
-        ecu.setName(requireTrimmed(ecu.getName(), "ECU名称"));
+        ecu.setName(requireTrimmed(ecu.getName(), ErrorConstant.Ecu.NAME_EMPTY));
         ecu.setType(trimToNull(ecu.getType()));
         ecu.setDesc(trimToNull(ecu.getDesc()));
         ecu.setMac(normalizeMac(ecu.getMac()));
         ecu.setIp(normalizeIp(ecu.getIp()));
-        ecu.setPort(requirePositive(ecu.getPort(), "端口号"));
-        ecu.setIndex(requirePositive(ecu.getIndex(), "部件索引号"));
+        ecu.setPort(requireNonNegative(ecu.getPort(), ErrorConstant.Ecu.PORT_EMPTY, ErrorConstant.Ecu.PORT_INVALID));
+        ecu.setIndex(requireNonNegative(ecu.getIndex(), ErrorConstant.Ecu.INDEX_EMPTY, ErrorConstant.Ecu.INDEX_INVALID));
+    }
+
+    private void ensureEcuUniqueness(Ecu ecu, Long excludeId) {
+        if (ecuMapper.countByProjectIdAndName(ecu.getProjectId(), ecu.getName(), excludeId) > 0) {
+            throw new VCDPException(ErrorConstant.Ecu.NAME_DUPLICATE);
+        }
+        if (ecuMapper.countByProjectIdAndMac(ecu.getProjectId(), ecu.getMac(), excludeId) > 0) {
+            throw new VCDPException(ErrorConstant.Ecu.MAC_DUPLICATE);
+        }
+        if (ecuMapper.countByProjectIdAndIp(ecu.getProjectId(), ecu.getIp(), excludeId) > 0) {
+            throw new VCDPException(ErrorConstant.Ecu.IP_DUPLICATE);
+        }
+        if (ecuMapper.countByProjectIdAndPort(ecu.getProjectId(), ecu.getPort(), excludeId) > 0) {
+            throw new VCDPException(ErrorConstant.Ecu.PORT_DUPLICATE);
+        }
+        if (ecuMapper.countByProjectIdAndIndex(ecu.getProjectId(), ecu.getIndex(), excludeId) > 0) {
+            throw new VCDPException(ErrorConstant.Ecu.INDEX_DUPLICATE);
+        }
     }
 
     private void normalizeForwardInfo(EcuForwardInfo forwardInfo, Long projectId, Long ecuId, boolean generateId) {
@@ -194,10 +231,14 @@ public class EcuService {
         }
         forwardInfo.setProjectId(projectId);
         forwardInfo.setEcuId(ecuId);
-        forwardInfo.setPFlashMemoryStartAddress(normalizeHex(forwardInfo.getPFlashMemoryStartAddress(), "P Flash起始地址"));
-        forwardInfo.setPFlashMemorySizeLimit(normalizeHex(forwardInfo.getPFlashMemorySizeLimit(), "P Flash大小限制"));
-        forwardInfo.setRamMemoryStartAddress(normalizeHex(forwardInfo.getRamMemoryStartAddress(), "RAM起始地址"));
-        forwardInfo.setRamMemorySizeLimit(normalizeHex(forwardInfo.getRamMemorySizeLimit(), "RAM大小限制"));
+        forwardInfo.setPFlashMemoryStartAddress(
+                normalizePositiveHex(forwardInfo.getPFlashMemoryStartAddress(), ErrorConstant.EcuForward.P_FLASH_START_INVALID));
+        forwardInfo.setPFlashMemorySizeLimit(
+                normalizePositiveHex(forwardInfo.getPFlashMemorySizeLimit(), ErrorConstant.EcuForward.P_FLASH_SIZE_INVALID));
+        forwardInfo.setRamMemoryStartAddress(
+                normalizePositiveHex(forwardInfo.getRamMemoryStartAddress(), ErrorConstant.EcuForward.RAM_START_INVALID));
+        forwardInfo.setRamMemorySizeLimit(
+                normalizePositiveHex(forwardInfo.getRamMemorySizeLimit(), ErrorConstant.EcuForward.RAM_SIZE_INVALID));
     }
 
     private List<EcuCanInterface> normalizeCanInterfaces(List<EcuCanInterface> items, Long projectId, Long ecuId) {
@@ -212,10 +253,16 @@ public class EcuService {
             item.setId(snowflakeIdGenerator.nextId());
             item.setProjectId(projectId);
             item.setEcuId(ecuId);
-            item.setInterfaceName(requireTrimmed(item.getInterfaceName(), "CAN接口名称"));
-            item.setChannelId(requirePositive(item.getChannelId(), "CAN接口ID"));
-            if (!EcuCanInterfaceTypeEnum.isValid(item.getInterfaceType())) {
-                throw new IllegalArgumentException("CAN接口类型不合法");
+            item.setInterfaceName(requireTrimmed(item.getInterfaceName(), ErrorConstant.CanInterface.NAME_EMPTY));
+            item.setChannelId(requireNonNegative(
+                    item.getChannelId(), ErrorConstant.CanInterface.CHANNEL_EMPTY, ErrorConstant.CanInterface.CHANNEL_INVALID));
+            item.setPort(requireNonNegative(
+                    item.getPort(), ErrorConstant.CanInterface.PORT_EMPTY, ErrorConstant.CanInterface.PORT_INVALID));
+            if (!CanInterfaceTypeEnum.isValid(item.getType())) {
+                throw new VCDPException(ErrorConstant.CanInterface.TYPE_INVALID);
+            }
+            if (!EcuCanInterfaceTypeEnum.isValid(item.getConnType())) {
+                throw new VCDPException(ErrorConstant.CanInterface.CONN_TYPE_INVALID);
             }
             result.add(item);
         }
@@ -234,8 +281,11 @@ public class EcuService {
             item.setId(snowflakeIdGenerator.nextId());
             item.setProjectId(projectId);
             item.setEcuId(ecuId);
-            item.setInterfaceName(requireTrimmed(item.getInterfaceName(), "LIN接口名称"));
-            item.setChannelId(requirePositive(item.getChannelId(), "LIN接口ID"));
+            item.setInterfaceName(requireTrimmed(item.getInterfaceName(), ErrorConstant.LinInterface.NAME_EMPTY));
+            item.setChannelId(requireNonNegative(
+                    item.getChannelId(), ErrorConstant.LinInterface.CHANNEL_EMPTY, ErrorConstant.LinInterface.CHANNEL_INVALID));
+            item.setPort(requireNonNegative(
+                    item.getPort(), ErrorConstant.LinInterface.PORT_EMPTY, ErrorConstant.LinInterface.PORT_INVALID));
             result.add(item);
         }
         return result;
@@ -253,18 +303,66 @@ public class EcuService {
             item.setId(snowflakeIdGenerator.nextId());
             item.setProjectId(projectId);
             item.setEcuId(ecuId);
-            item.setInterfaceName(requireTrimmed(item.getInterfaceName(), "ETH接口名称"));
+            item.setInterfaceName(requireTrimmed(item.getInterfaceName(), ErrorConstant.EthInterface.NAME_EMPTY));
+            item.setChannelId(requireNonNegative(
+                    item.getChannelId(), ErrorConstant.EthInterface.CHANNEL_EMPTY, ErrorConstant.EthInterface.CHANNEL_INVALID));
+            item.setPort(requireNonNegative(
+                    item.getPort(), ErrorConstant.EthInterface.PORT_EMPTY, ErrorConstant.EthInterface.PORT_INVALID));
             if (!EthPortTypeEnum.isValid(item.getType())) {
-                throw new IllegalArgumentException("ETH接口类型不合法");
+                throw new VCDPException(ErrorConstant.EthInterface.TYPE_INVALID);
             }
             result.add(item);
         }
         return result;
     }
 
-    private String requireTrimmed(String value, String fieldName) {
+    private void validateInterfaceUniqueness(List<EcuCanInterface> canInterfaces,
+                                             List<EcuLinInterface> linInterfaces,
+                                             List<EcuEthInterface> ethInterfaces) {
+        Set<String> names = new HashSet<>();
+        Set<Integer> ports = new HashSet<>();
+        Set<Integer> canChannels = new HashSet<>();
+        Set<Integer> linChannels = new HashSet<>();
+        Set<Integer> ethChannels = new HashSet<>();
+
+        for (EcuCanInterface item : canInterfaces) {
+            if (!names.add(item.getInterfaceName())) {
+                throw new VCDPException(ErrorConstant.CanInterface.NAME_DUPLICATE);
+            }
+            if (!ports.add(item.getPort())) {
+                throw new VCDPException(ErrorConstant.CanInterface.PORT_DUPLICATE);
+            }
+            if (!canChannels.add(item.getChannelId())) {
+                throw new VCDPException(ErrorConstant.CanInterface.CHANNEL_DUPLICATE);
+            }
+        }
+        for (EcuLinInterface item : linInterfaces) {
+            if (!names.add(item.getInterfaceName())) {
+                throw new VCDPException(ErrorConstant.LinInterface.NAME_DUPLICATE);
+            }
+            if (!ports.add(item.getPort())) {
+                throw new VCDPException(ErrorConstant.LinInterface.PORT_DUPLICATE);
+            }
+            if (!linChannels.add(item.getChannelId())) {
+                throw new VCDPException(ErrorConstant.LinInterface.CHANNEL_DUPLICATE);
+            }
+        }
+        for (EcuEthInterface item : ethInterfaces) {
+            if (!names.add(item.getInterfaceName())) {
+                throw new VCDPException(ErrorConstant.EthInterface.NAME_DUPLICATE);
+            }
+            if (!ports.add(item.getPort())) {
+                throw new VCDPException(ErrorConstant.EthInterface.PORT_DUPLICATE);
+            }
+            if (!ethChannels.add(item.getChannelId())) {
+                throw new VCDPException(ErrorConstant.EthInterface.CHANNEL_DUPLICATE);
+            }
+        }
+    }
+
+    private String requireTrimmed(String value, Pair<Integer, String> emptyError) {
         if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException(fieldName + "不能为空");
+            throw new VCDPException(emptyError);
         }
         return value.trim();
     }
@@ -277,57 +375,58 @@ public class EcuService {
         return trimmed.isEmpty() ? null : trimmed;
     }
 
-    private Integer requirePositive(Integer value, String fieldName) {
+    private Integer requireNonNegative(Integer value,
+                                       Pair<Integer, String> emptyError,
+                                       Pair<Integer, String> invalidError) {
         if (value == null) {
-            throw new IllegalArgumentException(fieldName + "不能为空");
+            throw new VCDPException(emptyError);
         }
-        if (value <= 0) {
-            throw new IllegalArgumentException(fieldName + "必须大于0");
+        if (value < 0) {
+            throw new VCDPException(invalidError);
         }
         return value;
     }
 
     private String normalizeMac(String mac) {
         if (mac == null || mac.trim().isEmpty()) {
-            throw new IllegalArgumentException("MAC不能为空");
+            throw new VCDPException(ErrorConstant.Ecu.MAC_EMPTY);
         }
         String normalized = mac.replace(":", "").replace("-", "").replace(" ", "").toUpperCase();
         if (normalized.length() != 12 || !HEX_PATTERN.matcher(normalized).matches()) {
-            throw new IllegalArgumentException("MAC格式不正确");
+            throw new VCDPException(ErrorConstant.Ecu.MAC_INVALID);
         }
         return normalized;
     }
 
     private String normalizeIp(String ip) {
-        String trimmed = requireTrimmed(ip, "IP地址");
+        if (ip == null || ip.trim().isEmpty()) {
+            throw new VCDPException(ErrorConstant.Ecu.IP_EMPTY);
+        }
+        String trimmed = ip.trim();
         if (!IPV4_PATTERN.matcher(trimmed).matches()) {
-            throw new IllegalArgumentException("IP格式不正确");
+            throw new VCDPException(ErrorConstant.Ecu.IP_INVALID);
         }
         return trimmed;
     }
 
-    private String normalizeHex(String value, String fieldName) {
-        String trimmed = requireTrimmed(value, fieldName);
-        String normalized = trimmed.startsWith("0x") || trimmed.startsWith("0X")
-                ? trimmed.substring(2)
-                : trimmed;
-        normalized = normalized.trim().toUpperCase();
-        if (normalized.isEmpty() || !HEX_PATTERN.matcher(normalized).matches()) {
-            throw new IllegalArgumentException(fieldName + "格式不正确");
+    private String normalizePositiveHex(String value, Pair<Integer, String> invalidError) {
+        String normalized = HexUtils.normalize(value);
+        if (normalized == null || !HexUtils.isPositive(normalized)) {
+            throw new VCDPException(invalidError);
         }
         return normalized;
     }
 
     private Ecu requireEcu(EcuConfig request) {
         if (request == null || request.getEcu() == null) {
-            throw new IllegalArgumentException("ECU基础配置不能为空");
+            throw new VCDPException(ErrorConstant.Ecu.CONFIG_EMPTY);
         }
         return request.getEcu();
     }
 
     private EcuForwardInfo requireForwardInfo(EcuConfig request) {
         if (request == null || request.getForwardInfo() == null) {
-            throw new IllegalArgumentException("转发表通信配置不能为空");
+            throw new VCDPException(ErrorConstant.EcuForward.CONFIG_EMPTY);
         }
         return request.getForwardInfo();
     }

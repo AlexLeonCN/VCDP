@@ -130,4 +130,19 @@ export async function batchDeleteEcus(projectId, ids) {
   return unwrapResult(result);
 }
 
+export async function fetchCanInterfaceTypes() {
+  const result = await request('/enums/can-interface-types');
+  return unwrapResult(result);
+}
+
+export async function fetchCanConnTypes() {
+  const result = await request('/enums/can-conn-types');
+  return unwrapResult(result);
+}
+
+export async function fetchEthInterfaceTypes() {
+  const result = await request('/enums/eth-interface-types');
+  return unwrapResult(result);
+}
+
 export { request };

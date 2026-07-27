@@ -1,7 +1,6 @@
 package com.neonnexus.vcdm.common.enumation;
 
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -11,31 +10,25 @@ public enum CanInterfaceTypeEnum {
     CAN(0, "CAN"),
     CANFD(1, "CANFD");
 
-    private int code;
-    private String value;
+    private final int code;
+    private final String label;
 
-     CanInterfaceTypeEnum(int code, String value) {
+    CanInterfaceTypeEnum(int code, String label) {
         this.code = code;
-        this.value = value;
+        this.label = label;
     }
 
-    public static boolean checkExist(String value) {
-         if (StringUtils.isBlank(value)) {
-             return false;
-         }
-        return Arrays.stream(CanInterfaceTypeEnum.values()).filter(item ->
-                 item.getValue().equalsIgnoreCase(value)).findAny().isPresent();
+    public static boolean isValid(Integer code) {
+        if (code == null) {
+            return false;
+        }
+        return Arrays.stream(values()).anyMatch(item -> item.code == code);
     }
 
-    public static CanInterfaceTypeEnum getByValue(String value) {
-         if (StringUtils.isBlank(value)) {
-             return null;
-         }
-        Optional<CanInterfaceTypeEnum> opt = Arrays.stream(CanInterfaceTypeEnum.values()).filter(item ->
-                item.getValue().equalsIgnoreCase(value)).findAny();
-         if (!opt.isPresent()) {
-             return null;
-         }
-         return opt.get();
+    public static Optional<CanInterfaceTypeEnum> fromCode(Integer code) {
+        if (code == null) {
+            return Optional.empty();
+        }
+        return Arrays.stream(values()).filter(item -> item.code == code).findFirst();
     }
 }

@@ -14,6 +14,8 @@ public interface ProjectMapper {
 
     Project findById(@Param("id") Long id);
 
+    long countByName(@Param("name") String name, @Param("excludeId") Long excludeId);
+
     int insert(Project project);
 
     int update(Project project);

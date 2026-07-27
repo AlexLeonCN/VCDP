@@ -48,6 +48,65 @@
         WHERE id = #{id}
     </select>
 
+    <select id="findIdsByProjectIds" resultType="long">
+        SELECT id
+        FROM ecu
+        WHERE project_id IN
+        <foreach collection="projectIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="countByProjectIdAndName" resultType="long">
+        SELECT COUNT(1)
+        FROM ecu
+        WHERE project_id = #{projectId}
+          AND name = #{name}
+        <if test="excludeId != null">
+            AND id &lt;&gt; #{excludeId}
+        </if>
+    </select>
+
+    <select id="countByProjectIdAndMac" resultType="long">
+        SELECT COUNT(1)
+        FROM ecu
+        WHERE project_id = #{projectId}
+          AND mac = #{mac}
+        <if test="excludeId != null">
+            AND id &lt;&gt; #{excludeId}
+        </if>
+    </select>
+
+    <select id="countByProjectIdAndIp" resultType="long">
+        SELECT COUNT(1)
+        FROM ecu
+        WHERE project_id = #{projectId}
+          AND ip = #{ip}
+        <if test="excludeId != null">
+            AND id &lt;&gt; #{excludeId}
+        </if>
+    </select>
+
+    <select id="countByProjectIdAndPort" resultType="long">
+        SELECT COUNT(1)
+        FROM ecu
+        WHERE project_id = #{projectId}
+          AND port = #{port}
+        <if test="excludeId != null">
+            AND id &lt;&gt; #{excludeId}
+        </if>
+    </select>
+
+    <select id="countByProjectIdAndIndex" resultType="long">
+        SELECT COUNT(1)
+        FROM ecu
+        WHERE project_id = #{projectId}
+          AND ecu_index = #{index}
+        <if test="excludeId != null">
+            AND id &lt;&gt; #{excludeId}
+        </if>
+    </select>
+
     <insert id="insert">
         INSERT INTO ecu (
             id,
@@ -95,6 +154,14 @@
         WHERE project_id = #{projectId}
           AND id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByProjectIds">
+        DELETE FROM ecu
+        WHERE project_id IN
+        <foreach collection="projectIds" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>

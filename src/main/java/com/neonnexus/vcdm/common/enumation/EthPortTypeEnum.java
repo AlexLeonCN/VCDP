@@ -7,8 +7,8 @@ import java.util.Optional;
 
 @Getter
 public enum EthPortTypeEnum {
-    FAST_ETHERNET(0, "百兆口"),
-    GIGABIT_ETHERNET(1, "千兆口");
+    FAST_ETHERNET(0, "百兆"),
+    GIGABIT_ETHERNET(1, "千兆");
 
     private final int code;
     private final String label;

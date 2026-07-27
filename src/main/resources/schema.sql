@@ -1,7 +1,7 @@
 -- 本地单机工具数据库表结构初始化脚本
 
 CREATE TABLE IF NOT EXISTS project (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id BIGINT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description VARCHAR(500),
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS project (
 );
 
 CREATE INDEX IF NOT EXISTS idx_project_update_time ON project(update_time);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_project_name ON project(name);
 
 CREATE TABLE IF NOT EXISTS ecu (
     id BIGINT PRIMARY KEY,
@@ -26,6 +27,11 @@ CREATE TABLE IF NOT EXISTS ecu (
 
 CREATE INDEX IF NOT EXISTS idx_ecu_project_id ON ecu(project_id);
 CREATE INDEX IF NOT EXISTS idx_ecu_update_time ON ecu(update_time);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_ecu_project_name ON ecu(project_id, name);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_ecu_project_mac ON ecu(project_id, mac);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_ecu_project_ip ON ecu(project_id, ip);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_ecu_project_port ON ecu(project_id, port);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_ecu_project_index ON ecu(project_id, ecu_index);
 
 CREATE TABLE IF NOT EXISTS ecu_forward_info (
     id BIGINT PRIMARY KEY,
@@ -45,7 +51,9 @@ CREATE TABLE IF NOT EXISTS ecu_can_interface (
     ecu_id BIGINT NOT NULL,
     interface_name VARCHAR(100) NOT NULL,
     channel_id INTEGER NOT NULL,
-    interface_type TINYINT NOT NULL
+    port INTEGER NOT NULL,
+    can_type TINYINT NOT NULL,
+    conn_type TINYINT NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_ecu_can_ecu_id ON ecu_can_interface(ecu_id);
@@ -55,7 +63,8 @@ CREATE TABLE IF NOT EXISTS ecu_lin_interface (
     project_id BIGINT NOT NULL,
     ecu_id BIGINT NOT NULL,
     interface_name VARCHAR(100) NOT NULL,
-    channel_id INTEGER NOT NULL
+    channel_id INTEGER NOT NULL,
+    port INTEGER NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_ecu_lin_ecu_id ON ecu_lin_interface(ecu_id);
@@ -65,6 +74,8 @@ CREATE TABLE IF NOT EXISTS ecu_eth_interface (
     project_id BIGINT NOT NULL,
     ecu_id BIGINT NOT NULL,
     interface_name VARCHAR(100) NOT NULL,
+    channel_id INTEGER NOT NULL,
+    port INTEGER NOT NULL,
     port_type TINYINT NOT NULL
 );
 

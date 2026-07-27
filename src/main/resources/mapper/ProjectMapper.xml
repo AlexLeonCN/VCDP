@@ -27,9 +27,18 @@
         WHERE id = #{id}
     </select>
 
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO project (name, description)
-        VALUES (#{name}, #{description})
+    <select id="countByName" resultType="long">
+        SELECT COUNT(1)
+        FROM project
+        WHERE name = #{name}
+        <if test="excludeId != null">
+            AND id &lt;&gt; #{excludeId}
+        </if>
+    </select>
+
+    <insert id="insert">
+        INSERT INTO project (id, name, description)
+        VALUES (#{id}, #{name}, #{description})
     </insert>
 
     <update id="update">

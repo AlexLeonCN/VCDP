@@ -2,18 +2,30 @@ package com.neonnexus.vcdm.exception;
 
 import com.neonnexus.vcdm.common.Pair;
 
+/**
+ * 自定义业务异常，支持基于 ErrorConstant 中的 Pair 或错误码+信息构建。
+ */
 public class VCDPException extends RuntimeException {
-    private Integer code;
-    private String message;
+    private final Integer code;
+    private final String message;
 
+    /**
+     * 基于错误码和报错信息构建。
+     */
     public VCDPException(Integer code, String message) {
         super(message);
         this.code = code;
         this.message = message;
     }
 
+    /**
+     * 基于 ErrorConstant 中定义的 Pair 构建。
+     */
     public VCDPException(Pair<Integer, String> pair) {
-        super(pair.getValue());
+        super(pair == null ? null : pair.getValue());
+        if (pair == null) {
+            throw new IllegalArgumentException("error pair cannot be null");
+        }
         this.code = pair.getKey();
         this.message = pair.getValue();
     }
@@ -22,6 +34,7 @@ public class VCDPException extends RuntimeException {
         return code;
     }
 
+    @Override
     public String getMessage() {
         return message;
     }

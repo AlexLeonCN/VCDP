@@ -803,12 +803,13 @@ export default {
 
 .ecu-toolbar h2 {
   margin: 0 0 8px;
-  color: #303133;
+  color: var(--tech-text);
+  letter-spacing: 0.12em;
 }
 
 .ecu-toolbar p {
   margin: 0;
-  color: #909399;
+  color: var(--tech-muted);
 }
 
 .toolbar-actions {
@@ -825,16 +826,18 @@ export default {
 
 .ecu-card {
   position: relative;
-  background: #fff;
-  border: 1px solid #ebeef5;
+  background: linear-gradient(180deg, rgba(14, 28, 46, 0.92), rgba(8, 16, 28, 0.92));
+  border: 1px solid var(--tech-border);
   border-radius: 12px;
   padding: 20px 18px 18px;
   cursor: pointer;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  box-shadow: inset 0 1px 0 rgba(0, 212, 255, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
 
 .ecu-card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-color: var(--tech-border-strong);
+  box-shadow: 0 0 24px rgba(0, 212, 255, 0.14);
   transform: translateY(-2px);
 }
 
@@ -854,12 +857,12 @@ export default {
 .ecu-name {
   margin: 24px 0 8px;
   font-size: 18px;
-  color: #303133;
+  color: var(--tech-text);
 }
 
 .ecu-type {
   margin: 0;
-  color: #606266;
+  color: var(--tech-muted);
 }
 
 .pagination-wrapper {

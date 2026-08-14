@@ -110,6 +110,7 @@ export default {
 .workspace-page,
 .workspace-layout {
   min-height: 100vh;
+  background: transparent;
 }
 
 .workspace-header {
@@ -117,8 +118,9 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #e4e7ed;
-  background: #fff;
+  border-bottom: 1px solid var(--tech-border);
+  background: rgba(8, 14, 26, 0.82);
+  backdrop-filter: blur(16px);
   padding: 0 20px;
 }
 
@@ -131,37 +133,53 @@ export default {
 .header-left h1 {
   margin: 0;
   font-size: 20px;
-  color: #303133;
+  color: var(--tech-text);
+  letter-spacing: 0.08em;
 }
 
 .project-scope {
   padding: 4px 10px;
   border-radius: 999px;
-  background: #ecf5ff;
-  color: #409eff;
+  background: rgba(0, 212, 255, 0.12);
+  border: 1px solid rgba(0, 212, 255, 0.28);
+  color: var(--tech-accent);
   font-size: 13px;
   font-weight: 600;
+  letter-spacing: 0.08em;
 }
 
 .workspace-aside {
-  background: #fff;
-  border-right: 1px solid #e4e7ed;
+  background: rgba(8, 14, 26, 0.72);
+  border-right: 1px solid var(--tech-border);
   padding: 16px 12px;
 }
 
 .menu-title {
   margin: 4px 12px 12px;
-  color: #606266;
+  color: var(--tech-muted);
   font-size: 13px;
   font-weight: 600;
+  letter-spacing: 0.16em;
 }
 
 .workspace-menu {
   border-right: none;
+  background: transparent;
+}
+
+:deep(.workspace-menu .el-menu-item) {
+  color: var(--tech-muted);
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+:deep(.workspace-menu .el-menu-item.is-active) {
+  background: rgba(0, 212, 255, 0.12);
+  color: var(--tech-accent);
 }
 
 .workspace-main {
-  background: #f5f7fa;
+  background: transparent;
   padding: 24px;
 }
 </style>

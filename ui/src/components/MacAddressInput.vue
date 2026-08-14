@@ -123,24 +123,27 @@ export default {
   width: 42px;
   height: 32px;
   text-align: center;
-  border: 1px solid #dcdfe6;
+  border: 1px solid var(--el-border-color);
   border-radius: 4px;
+  background: var(--el-fill-color-blank);
+  color: var(--el-text-color-primary);
   font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
   text-transform: uppercase;
 }
 
 .mac-segment:focus {
   outline: none;
-  border-color: #409eff;
+  border-color: var(--tech-accent);
+  box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.25);
 }
 
 .mac-separator {
-  color: #909399;
+  color: var(--tech-muted);
   font-weight: 600;
 }
 
 .disabled .mac-segment {
-  background: #f5f7fa;
-  color: #a8abb2;
+  background: var(--el-fill-color-light);
+  color: var(--el-text-color-placeholder);
 }
 </style>

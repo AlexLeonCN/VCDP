@@ -50,15 +50,24 @@ export default {
 
 .overview-wrapper h2 {
   margin: 0 0 12px;
-  color: #303133;
+  color: var(--tech-text);
+  letter-spacing: 0.08em;
 }
 
 .description {
-  color: #606266;
+  color: var(--tech-muted);
   line-height: 1.8;
 }
 
 .muted {
-  color: #909399;
+  color: #6b8296;
+}
+
+.overview-wrapper p {
+  color: var(--tech-muted);
+}
+
+.overview-wrapper :deep(.el-card__body) {
+  color: var(--tech-muted);
 }
 </style>

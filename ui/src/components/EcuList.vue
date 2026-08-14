@@ -109,22 +109,22 @@
             <el-row :gutter="16">
               <el-col :span="12">
                 <el-form-item label="pFlash空间起始地址" prop="pFlashMemoryStartAddress">
-                  <el-input v-model="forwardForm.pFlashMemoryStartAddress" :disabled="isView" placeholder="十六进制，如 0x1000" />
+                  <HexAddressInput v-model="forwardForm.pFlashMemoryStartAddress" :disabled="isView" placeholder="如 1000" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="pFlash空间大小" prop="pFlashMemorySizeLimit">
-                  <el-input v-model="forwardForm.pFlashMemorySizeLimit" :disabled="isView" placeholder="十六进制" />
+                  <HexAddressInput v-model="forwardForm.pFlashMemorySizeLimit" :disabled="isView" placeholder="如 2000" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="RAM空间起始地址" prop="ramMemoryStartAddress">
-                  <el-input v-model="forwardForm.ramMemoryStartAddress" :disabled="isView" placeholder="十六进制" />
+                  <HexAddressInput v-model="forwardForm.ramMemoryStartAddress" :disabled="isView" placeholder="如 3000" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="RAM空间大小" prop="ramMemorySizeLimit">
-                  <el-input v-model="forwardForm.ramMemorySizeLimit" :disabled="isView" placeholder="十六进制" />
+                  <HexAddressInput v-model="forwardForm.ramMemorySizeLimit" :disabled="isView" placeholder="如 4000" />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -288,9 +288,10 @@ import {
 } from '../api';
 import MacAddressInput from './MacAddressInput.vue';
 import IpAddressInput from './IpAddressInput.vue';
+import HexAddressInput from './HexAddressInput.vue';
+import { isPositiveHex, isValidHex, sanitizeHexBody, toHexPayload } from '../utils/hex';
 
 const MAC_REGEX = /^[0-9A-F]{12}$/;
-const HEX_REGEX = /^(0x)?[0-9a-fA-F]+$/;
 const IPV4_REGEX =
   /^(25[0-5]|2[0-4]\d|1?\d?\d)\.(25[0-5]|2[0-4]\d|1?\d?\d)\.(25[0-5]|2[0-4]\d|1?\d?\d)\.(25[0-5]|2[0-4]\d|1?\d?\d)$/;
 
@@ -298,7 +299,8 @@ export default {
   name: 'EcuList',
   components: {
     MacAddressInput,
-    IpAddressInput
+    IpAddressInput,
+    HexAddressInput
   },
   setup() {
     const route = useRoute();
@@ -389,13 +391,16 @@ export default {
       { required: true, message, trigger: 'blur' },
       {
         validator: (_, value, callback) => {
-          if (!HEX_REGEX.test(value || '')) {
+          const hexBody = sanitizeHexBody(value);
+          if (!hexBody || !isValidHex(hexBody)) {
+            callback(new Error('请输入合法的十六进制字符串'));
+          } else if (!isPositiveHex(hexBody)) {
             callback(new Error('请输入大于0的十六进制'));
           } else {
             callback();
           }
         },
-        trigger: 'blur'
+        trigger: ['blur', 'change']
       }
     ];
 
@@ -484,10 +489,10 @@ export default {
       forwardForm.id = toIdString(forwardInfo.id);
       forwardForm.ecuId = toIdString(forwardInfo.ecuId || ecu.id);
       forwardForm.projectId = toIdString(forwardInfo.projectId || projectId.value);
-      forwardForm.pFlashMemoryStartAddress = forwardInfo.pFlashMemoryStartAddress || '';
-      forwardForm.pFlashMemorySizeLimit = forwardInfo.pFlashMemorySizeLimit || '';
-      forwardForm.ramMemoryStartAddress = forwardInfo.ramMemoryStartAddress || '';
-      forwardForm.ramMemorySizeLimit = forwardInfo.ramMemorySizeLimit || '';
+      forwardForm.pFlashMemoryStartAddress = sanitizeHexBody(forwardInfo.pFlashMemoryStartAddress);
+      forwardForm.pFlashMemorySizeLimit = sanitizeHexBody(forwardInfo.pFlashMemorySizeLimit);
+      forwardForm.ramMemoryStartAddress = sanitizeHexBody(forwardInfo.ramMemoryStartAddress);
+      forwardForm.ramMemorySizeLimit = sanitizeHexBody(forwardInfo.ramMemorySizeLimit);
       canInterfaces.value = (detail.canInterfaces || []).map(item => ({
         ...item,
         id: toIdString(item.id),
@@ -583,10 +588,10 @@ export default {
         id: toIdString(forwardForm.id) || undefined,
         ecuId: toIdString(ecuForm.id) || undefined,
         projectId: projectId.value,
-        pFlashMemoryStartAddress: forwardForm.pFlashMemoryStartAddress,
-        pFlashMemorySizeLimit: forwardForm.pFlashMemorySizeLimit,
-        ramMemoryStartAddress: forwardForm.ramMemoryStartAddress,
-        ramMemorySizeLimit: forwardForm.ramMemorySizeLimit
+        pFlashMemoryStartAddress: toHexPayload(forwardForm.pFlashMemoryStartAddress),
+        pFlashMemorySizeLimit: toHexPayload(forwardForm.pFlashMemorySizeLimit),
+        ramMemoryStartAddress: toHexPayload(forwardForm.ramMemoryStartAddress),
+        ramMemorySizeLimit: toHexPayload(forwardForm.ramMemorySizeLimit)
       },
       canInterfaces: canInterfaces.value.map(item => ({
         interfaceName: item.interfaceName,

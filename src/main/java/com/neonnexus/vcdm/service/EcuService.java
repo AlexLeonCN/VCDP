@@ -410,6 +410,9 @@ public class EcuService {
     }
 
     private String normalizePositiveHex(String value, Pair<Integer, String> invalidError) {
+        if (!HexUtils.isValid(value)) {
+            throw new VCDPException(invalidError);
+        }
         String normalized = HexUtils.normalize(value);
         if (normalized == null || !HexUtils.isPositive(normalized)) {
             throw new VCDPException(invalidError);

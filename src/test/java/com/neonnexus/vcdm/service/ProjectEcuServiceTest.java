@@ -10,7 +10,6 @@ import com.neonnexus.vcdm.entity.po.project.EcuLinInterface;
 import com.neonnexus.vcdm.entity.po.project.Project;
 import com.neonnexus.vcdm.exception.VCDPException;
 import com.neonnexus.vcdm.support.DatabaseTestSupport;
-import com.neonnexus.vcdm.util.HexUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +74,9 @@ class ProjectEcuServiceTest {
         assertEquals("AABBCCDDEEFF", created.getEcu().getMac());
         assertEquals("192.168.1.10", created.getEcu().getIp());
         assertEquals("0x1000", created.getForwardInfo().getPFlashMemoryStartAddress());
+        assertEquals("0x2000", created.getForwardInfo().getPFlashMemorySizeLimit());
+        assertEquals("0x3000", created.getForwardInfo().getRamMemoryStartAddress());
+        assertEquals("0x4000", created.getForwardInfo().getRamMemorySizeLimit());
         assertEquals(1, created.getCanInterfaces().size());
         assertEquals(0, created.getCanInterfaces().get(0).getType());
         assertEquals(1, created.getCanInterfaces().get(0).getConnType());
@@ -123,10 +125,25 @@ class ProjectEcuServiceTest {
     }
 
     @Test
-    void hexUtilsShouldNormalizeTo0xPrefix() {
-        assertEquals("0xABC", HexUtils.normalize("abc"));
-        assertEquals("0xABC", HexUtils.normalize("0xabc"));
-        assertTrue(HexUtils.isPositive("0x1"));
+    void createEcuShouldRejectInvalidHexAddress() {
+        Project project = createProject("工程F");
+        EcuConfig config = buildValidConfig();
+        config.getForwardInfo().setPFlashMemoryStartAddress("XYZ");
+
+        VCDPException ex = assertThrows(VCDPException.class,
+                () -> ecuService.createEcu(project.getId(), config));
+        assertEquals(ErrorConstant.EcuForward.P_FLASH_START_INVALID.getKey(), ex.getCode());
+    }
+
+    @Test
+    void createEcuShouldRejectZeroHexAddress() {
+        Project project = createProject("工程G");
+        EcuConfig config = buildValidConfig();
+        config.getForwardInfo().setRamMemorySizeLimit("0x0");
+
+        VCDPException ex = assertThrows(VCDPException.class,
+                () -> ecuService.createEcu(project.getId(), config));
+        assertEquals(ErrorConstant.EcuForward.RAM_SIZE_INVALID.getKey(), ex.getCode());
     }
 
     private Project createProject(String name) {

@@ -48,7 +48,7 @@
         WHERE id = #{id}
     </select>
 
-    <select id="findIdsByProjectIds" resultType="long">
+    <select id="findIdsByProjectIds" resultType="string">
         SELECT id
         FROM ecu
         WHERE project_id IN
@@ -166,7 +166,7 @@
         </foreach>
     </delete>
 
-    <select id="findIdsByProjectId" resultType="long">
+    <select id="findIdsByProjectId" resultType="string">
         SELECT id
         FROM ecu
         WHERE project_id = #{projectId}

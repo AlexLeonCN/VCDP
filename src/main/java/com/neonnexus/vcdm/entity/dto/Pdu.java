@@ -5,8 +5,8 @@ import com.neonnexus.vcdm.common.enumation.PduFrameTypeEnum;
 import java.util.List;
 
 public class Pdu {
-    private Long id;
-    private Long busId;
+    private String id;
+    private String busId;
     private PduFrameTypeEnum frameType;
     private Integer msgLength;
 }

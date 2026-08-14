@@ -45,7 +45,7 @@ public class EcuService {
     private final EcuConfigMapper ecuConfigMapper;
     private final SnowflakeIdGenerator snowflakeIdGenerator;
 
-    public PageResult<Ecu> listEcus(Long projectId, Integer page, Integer size) {
+    public PageResult<Ecu> listEcus(String projectId, Integer page, Integer size) {
         ensureProjectExists(projectId);
         int safePage = page == null || page < 1 ? DEFAULT_PAGE : page;
         int safeSize = size == null || size < 1 ? DEFAULT_SIZE : Math.min(size, MAX_SIZE);
@@ -56,7 +56,7 @@ public class EcuService {
         return new PageResult<>(records, total, safePage, safeSize);
     }
 
-    public EcuConfig getEcuConfig(Long projectId, Long ecuId) {
+    public EcuConfig getEcuConfig(String projectId, String ecuId) {
         ensureProjectExists(projectId);
         Ecu ecu = ecuMapper.findById(ecuId);
         if (ecu == null || !Objects.equals(ecu.getProjectId(), projectId)) {
@@ -66,7 +66,7 @@ public class EcuService {
     }
 
     @Transactional
-    public EcuConfig createEcu(Long projectId, EcuConfig request) {
+    public EcuConfig createEcu(String projectId, EcuConfig request) {
         ensureProjectExists(projectId);
         Ecu ecu = requireEcu(request);
         EcuForwardInfo forwardInfo = requireForwardInfo(request);
@@ -88,7 +88,7 @@ public class EcuService {
     }
 
     @Transactional
-    public EcuConfig updateEcu(Long projectId, Long ecuId, EcuConfig request) {
+    public EcuConfig updateEcu(String projectId, String ecuId, EcuConfig request) {
         ensureProjectExists(projectId);
         Ecu existing = ecuMapper.findById(ecuId);
         if (existing == null || !Objects.equals(existing.getProjectId(), projectId)) {
@@ -120,7 +120,7 @@ public class EcuService {
     }
 
     @Transactional
-    public boolean deleteEcu(Long projectId, Long ecuId) {
+    public boolean deleteEcu(String projectId, String ecuId) {
         ensureProjectExists(projectId);
         Ecu ecu = ecuMapper.findById(ecuId);
         if (ecu == null || !Objects.equals(ecu.getProjectId(), projectId)) {
@@ -131,12 +131,12 @@ public class EcuService {
     }
 
     @Transactional
-    public int deleteEcus(Long projectId, List<Long> ecuIds) {
+    public int deleteEcus(String projectId, List<String> ecuIds) {
         ensureProjectExists(projectId);
         if (ecuIds == null || ecuIds.isEmpty()) {
             return 0;
         }
-        List<Long> validIds = ecuMapper.findIdsByProjectId(projectId, ecuIds);
+        List<String> validIds = ecuMapper.findIdsByProjectId(projectId, ecuIds);
         if (validIds == null || validIds.isEmpty()) {
             return 0;
         }
@@ -144,13 +144,13 @@ public class EcuService {
         return ecuMapper.deleteBatchByProjectId(projectId, validIds);
     }
 
-    private void ensureProjectExists(Long projectId) {
-        if (projectId == null || projectMapper.findById(projectId) == null) {
+    private void ensureProjectExists(String projectId) {
+        if (projectId == null || projectId.isBlank() || projectMapper.findById(projectId) == null) {
             throw new VCDPException(ErrorConstant.Ecu.PROJECT_NOT_FOUND);
         }
     }
 
-    private void deleteConfigs(List<Long> ecuIds) {
+    private void deleteConfigs(List<String> ecuIds) {
         ecuConfigMapper.deleteForwardInfoByEcuIds(ecuIds);
         ecuConfigMapper.deleteCanInterfacesByEcuIds(ecuIds);
         ecuConfigMapper.deleteLinInterfacesByEcuIds(ecuIds);
@@ -193,7 +193,7 @@ public class EcuService {
         return config;
     }
 
-    private void normalizeEcu(Ecu ecu, Long projectId, boolean generateId) {
+    private void normalizeEcu(Ecu ecu, String projectId, boolean generateId) {
         if (generateId) {
             ecu.setId(snowflakeIdGenerator.nextId());
         }
@@ -207,7 +207,7 @@ public class EcuService {
         ecu.setIndex(requireNonNegative(ecu.getIndex(), ErrorConstant.Ecu.INDEX_EMPTY, ErrorConstant.Ecu.INDEX_INVALID));
     }
 
-    private void ensureEcuUniqueness(Ecu ecu, Long excludeId) {
+    private void ensureEcuUniqueness(Ecu ecu, String excludeId) {
         if (ecuMapper.countByProjectIdAndName(ecu.getProjectId(), ecu.getName(), excludeId) > 0) {
             throw new VCDPException(ErrorConstant.Ecu.NAME_DUPLICATE);
         }
@@ -225,8 +225,8 @@ public class EcuService {
         }
     }
 
-    private void normalizeForwardInfo(EcuForwardInfo forwardInfo, Long projectId, Long ecuId, boolean generateId) {
-        if (generateId || forwardInfo.getId() == null) {
+    private void normalizeForwardInfo(EcuForwardInfo forwardInfo, String projectId, String ecuId, boolean generateId) {
+        if (generateId || forwardInfo.getId() == null || forwardInfo.getId().isBlank()) {
             forwardInfo.setId(snowflakeIdGenerator.nextId());
         }
         forwardInfo.setProjectId(projectId);
@@ -241,7 +241,7 @@ public class EcuService {
                 normalizePositiveHex(forwardInfo.getRamMemorySizeLimit(), ErrorConstant.EcuForward.RAM_SIZE_INVALID));
     }
 
-    private List<EcuCanInterface> normalizeCanInterfaces(List<EcuCanInterface> items, Long projectId, Long ecuId) {
+    private List<EcuCanInterface> normalizeCanInterfaces(List<EcuCanInterface> items, String projectId, String ecuId) {
         if (items == null) {
             return Collections.emptyList();
         }
@@ -269,7 +269,7 @@ public class EcuService {
         return result;
     }
 
-    private List<EcuLinInterface> normalizeLinInterfaces(List<EcuLinInterface> items, Long projectId, Long ecuId) {
+    private List<EcuLinInterface> normalizeLinInterfaces(List<EcuLinInterface> items, String projectId, String ecuId) {
         if (items == null) {
             return Collections.emptyList();
         }
@@ -291,7 +291,7 @@ public class EcuService {
         return result;
     }
 
-    private List<EcuEthInterface> normalizeEthInterfaces(List<EcuEthInterface> items, Long projectId, Long ecuId) {
+    private List<EcuEthInterface> normalizeEthInterfaces(List<EcuEthInterface> items, String projectId, String ecuId) {
         if (items == null) {
             return Collections.emptyList();
         }

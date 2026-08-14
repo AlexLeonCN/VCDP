@@ -58,7 +58,7 @@ class ProjectEcuServiceTest {
         project.setDescription("描述A");
         Project created = projectService.createProject(project);
         assertNotNull(created.getId());
-        assertTrue(created.getId() > 1000);
+        assertTrue(created.getId().matches("\\d{15,}"));
 
         Project duplicated = new Project();
         duplicated.setName("工程A");

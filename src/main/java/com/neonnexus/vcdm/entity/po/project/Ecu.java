@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class Ecu {
-    private Long id;
-    private Long projectId;
+    private String id;
+    private String projectId;
     private String name;
     private String type;
     private String desc;

@@ -4,9 +4,9 @@ import lombok.Data;
 
 @Data
 public class EcuCanInterface {
-    private Long id;
-    private Long projectId;
-    private Long ecuId;
+    private String id;
+    private String projectId;
+    private String ecuId;
     private String interfaceName;
     private Integer channelId;
     private Integer port;

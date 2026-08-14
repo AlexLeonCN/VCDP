@@ -8,45 +8,45 @@ import java.util.List;
 
 @Mapper
 public interface EcuMapper {
-    List<Ecu> findPageByProjectId(@Param("projectId") Long projectId,
+    List<Ecu> findPageByProjectId(@Param("projectId") String projectId,
                                   @Param("offset") int offset,
                                   @Param("size") int size);
 
-    long countByProjectId(@Param("projectId") Long projectId);
+    long countByProjectId(@Param("projectId") String projectId);
 
-    Ecu findById(@Param("id") Long id);
+    Ecu findById(@Param("id") String id);
 
-    List<Long> findIdsByProjectIds(@Param("projectIds") List<Long> projectIds);
+    List<String> findIdsByProjectIds(@Param("projectIds") List<String> projectIds);
 
-    long countByProjectIdAndName(@Param("projectId") Long projectId,
+    long countByProjectIdAndName(@Param("projectId") String projectId,
                                  @Param("name") String name,
-                                 @Param("excludeId") Long excludeId);
+                                 @Param("excludeId") String excludeId);
 
-    long countByProjectIdAndMac(@Param("projectId") Long projectId,
+    long countByProjectIdAndMac(@Param("projectId") String projectId,
                                 @Param("mac") String mac,
-                                @Param("excludeId") Long excludeId);
+                                @Param("excludeId") String excludeId);
 
-    long countByProjectIdAndIp(@Param("projectId") Long projectId,
+    long countByProjectIdAndIp(@Param("projectId") String projectId,
                                @Param("ip") String ip,
-                               @Param("excludeId") Long excludeId);
+                               @Param("excludeId") String excludeId);
 
-    long countByProjectIdAndPort(@Param("projectId") Long projectId,
+    long countByProjectIdAndPort(@Param("projectId") String projectId,
                                  @Param("port") Integer port,
-                                 @Param("excludeId") Long excludeId);
+                                 @Param("excludeId") String excludeId);
 
-    long countByProjectIdAndIndex(@Param("projectId") Long projectId,
+    long countByProjectIdAndIndex(@Param("projectId") String projectId,
                                   @Param("index") Integer index,
-                                  @Param("excludeId") Long excludeId);
+                                  @Param("excludeId") String excludeId);
 
     int insert(Ecu ecu);
 
     int update(Ecu ecu);
 
-    int deleteById(@Param("id") Long id);
+    int deleteById(@Param("id") String id);
 
-    int deleteBatchByProjectId(@Param("projectId") Long projectId, @Param("ids") List<Long> ids);
+    int deleteBatchByProjectId(@Param("projectId") String projectId, @Param("ids") List<String> ids);
 
-    int deleteByProjectIds(@Param("projectIds") List<Long> projectIds);
+    int deleteByProjectIds(@Param("projectIds") List<String> projectIds);
 
-    List<Long> findIdsByProjectId(@Param("projectId") Long projectId, @Param("ids") List<Long> ids);
+    List<String> findIdsByProjectId(@Param("projectId") String projectId, @Param("ids") List<String> ids);
 }

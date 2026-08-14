@@ -12,15 +12,15 @@ public interface ProjectMapper {
 
     long count();
 
-    Project findById(@Param("id") Long id);
+    Project findById(@Param("id") String id);
 
-    long countByName(@Param("name") String name, @Param("excludeId") Long excludeId);
+    long countByName(@Param("name") String name, @Param("excludeId") String excludeId);
 
     int insert(Project project);
 
     int update(Project project);
 
-    int deleteById(@Param("id") Long id);
+    int deleteById(@Param("id") String id);
 
-    int deleteBatch(@Param("ids") List<Long> ids);
+    int deleteBatch(@Param("ids") List<String> ids);
 }

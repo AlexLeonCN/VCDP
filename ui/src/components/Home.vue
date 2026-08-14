@@ -106,7 +106,7 @@ import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Delete, Edit, Plus } from '@element-plus/icons-vue';
 import logoImg from '../assets/logo.png';
-import { batchDeleteProjects, createProject, deleteProject, fetchProjects, updateProject } from '../api';
+import { batchDeleteProjects, createProject, deleteProject, fetchProjects, toIdString, updateProject } from '../api';
 
 export default {
   name: 'Home',
@@ -146,8 +146,11 @@ export default {
       loading.value = true;
       try {
         const data = await fetchProjects({ page: page.value, size: size.value });
-        projects.value = data.records || [];
-        total.value = data.total || 0;
+        projects.value = (data.records || []).map(project => ({
+          ...project,
+          id: toIdString(project.id)
+        }));
+        total.value = Number(data.total) || 0;
         selectedIds.value = selectedIds.value.filter(id => projects.value.some(project => project.id === id));
       } catch (error) {
         ElMessage.error(error.message || '加载工程失败');
@@ -171,7 +174,7 @@ export default {
 
     const openEditDialog = (project) => {
       dialogMode.value = 'edit';
-      editingProjectId.value = project.id;
+      editingProjectId.value = toIdString(project.id);
       projectForm.name = project.name;
       projectForm.description = project.description || '';
       dialogVisible.value = true;
@@ -206,12 +209,13 @@ export default {
     };
 
     const toggleSelection = (id, checked) => {
+      const selectedId = toIdString(id);
       if (checked) {
-        if (!selectedIds.value.includes(id)) {
-          selectedIds.value = [...selectedIds.value, id];
+        if (!selectedIds.value.includes(selectedId)) {
+          selectedIds.value = [...selectedIds.value, selectedId];
         }
       } else {
-        selectedIds.value = selectedIds.value.filter(selectedId => selectedId !== id);
+        selectedIds.value = selectedIds.value.filter(currentId => currentId !== selectedId);
       }
     };
 
@@ -222,9 +226,9 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         });
-        await deleteProject(project.id);
+        await deleteProject(toIdString(project.id));
         ElMessage.success('工程已删除');
-        selectedIds.value = selectedIds.value.filter(id => id !== project.id);
+        selectedIds.value = selectedIds.value.filter(id => id !== toIdString(project.id));
         if (projects.value.length === 1 && page.value > 1) {
           page.value -= 1;
         }
@@ -262,7 +266,7 @@ export default {
     };
 
     const enterProject = (project) => {
-      router.push(`/projects/${project.id}`);
+      router.push(`/projects/${toIdString(project.id)}`);
     };
 
     onMounted(loadProjects);

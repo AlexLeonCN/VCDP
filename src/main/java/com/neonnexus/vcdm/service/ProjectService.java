@@ -37,7 +37,7 @@ public class ProjectService {
         return new PageResult<>(records, total, safePage, safeSize);
     }
 
-    public Project getProject(Long id) {
+    public Project getProject(String id) {
         Project project = projectMapper.findById(id);
         if (project == null) {
             throw new VCDPException(ErrorConstant.Project.NOT_FOUND);
@@ -54,7 +54,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public Project updateProject(Long id, Project project) {
+    public Project updateProject(String id, Project project) {
         Project existing = projectMapper.findById(id);
         if (existing == null) {
             throw new VCDPException(ErrorConstant.Project.NOT_FOUND);
@@ -66,7 +66,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public boolean deleteProject(Long id) {
+    public boolean deleteProject(String id) {
         Project existing = projectMapper.findById(id);
         if (existing == null) {
             throw new VCDPException(ErrorConstant.Project.NOT_FOUND);
@@ -76,7 +76,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public int deleteProjects(List<Long> ids) {
+    public int deleteProjects(List<String> ids) {
         if (ids == null || ids.isEmpty()) {
             return 0;
         }
@@ -84,8 +84,8 @@ public class ProjectService {
         return projectMapper.deleteBatch(ids);
     }
 
-    private void cascadeDeleteEcus(List<Long> projectIds) {
-        List<Long> ecuIds = ecuMapper.findIdsByProjectIds(projectIds);
+    private void cascadeDeleteEcus(List<String> projectIds) {
+        List<String> ecuIds = ecuMapper.findIdsByProjectIds(projectIds);
         if (ecuIds != null && !ecuIds.isEmpty()) {
             ecuConfigMapper.deleteForwardInfoByEcuIds(ecuIds);
             ecuConfigMapper.deleteCanInterfacesByEcuIds(ecuIds);
@@ -95,7 +95,7 @@ public class ProjectService {
         ecuMapper.deleteByProjectIds(projectIds);
     }
 
-    private void normalize(Project project, Long excludeId) {
+    private void normalize(Project project, String excludeId) {
         if (project == null || project.getName() == null || project.getName().trim().isEmpty()) {
             throw new VCDPException(ErrorConstant.Project.NAME_EMPTY);
         }

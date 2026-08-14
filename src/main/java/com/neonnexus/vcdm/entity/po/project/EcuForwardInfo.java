@@ -5,9 +5,9 @@ import lombok.Data;
 
 @Data
 public class EcuForwardInfo {
-    private Long id;
-    private Long ecuId;
-    private Long projectId;
+    private String id;
+    private String ecuId;
+    private String projectId;
     @JsonProperty("pFlashMemoryStartAddress")
     private String pFlashMemoryStartAddress;
     @JsonProperty("pFlashMemorySizeLimit")

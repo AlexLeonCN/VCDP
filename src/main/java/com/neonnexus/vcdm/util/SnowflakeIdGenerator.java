@@ -154,10 +154,17 @@ public class SnowflakeIdGenerator {
 
     /**
      * 生成下一个ID
-     * 
-     * @return 唯一的ID
+     *
+     * @return 唯一的雪花 ID（十进制字符串，避免前端 Number 精度丢失）
      */
-    public synchronized long nextId() {
+    public String nextId() {
+        return String.valueOf(nextLongId());
+    }
+
+    /**
+     * 生成下一个数值型雪花 ID，仅供内部解析与测试使用。
+     */
+    synchronized long nextLongId() {
         // 延迟验证（适用于Spring环境，在首次使用时验证配置）
         validateIds();
         

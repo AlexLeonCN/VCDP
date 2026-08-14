@@ -283,6 +283,7 @@ import {
   fetchEcu,
   fetchEcus,
   fetchEthInterfaceTypes,
+  toIdString,
   updateEcu
 } from '../api';
 import MacAddressInput from './MacAddressInput.vue';
@@ -301,7 +302,7 @@ export default {
   },
   setup() {
     const route = useRoute();
-    const projectId = computed(() => route.params.id);
+    const projectId = computed(() => toIdString(route.params.id));
     const ecus = ref([]);
     const selectedIds = ref([]);
     const loading = ref(false);
@@ -424,8 +425,12 @@ export default {
       loading.value = true;
       try {
         const data = await fetchEcus(projectId.value, { page: page.value, size: size.value });
-        ecus.value = data.records || [];
-        total.value = data.total || 0;
+        ecus.value = (data.records || []).map(ecu => ({
+          ...ecu,
+          id: toIdString(ecu.id),
+          projectId: toIdString(ecu.projectId || projectId.value)
+        }));
+        total.value = Number(data.total) || 0;
         selectedIds.value = selectedIds.value.filter(id => ecus.value.some(ecu => ecu.id === id));
       } catch (error) {
         ElMessage.error(error.message || '加载 ECU 失败');
@@ -467,8 +472,8 @@ export default {
     const applyDetail = detail => {
       const ecu = detail.ecu || {};
       const forwardInfo = detail.forwardInfo || {};
-      ecuForm.id = ecu.id || '';
-      ecuForm.projectId = ecu.projectId || projectId.value || '';
+      ecuForm.id = toIdString(ecu.id);
+      ecuForm.projectId = toIdString(ecu.projectId || projectId.value);
       ecuForm.name = ecu.name || '';
       ecuForm.type = ecu.type || '';
       ecuForm.desc = ecu.desc || '';
@@ -476,16 +481,31 @@ export default {
       ecuForm.ip = ecu.ip || '';
       ecuForm.port = ecu.port ?? null;
       ecuForm.index = ecu.index ?? null;
-      forwardForm.id = forwardInfo.id || '';
-      forwardForm.ecuId = forwardInfo.ecuId || ecu.id || '';
-      forwardForm.projectId = forwardInfo.projectId || projectId.value || '';
+      forwardForm.id = toIdString(forwardInfo.id);
+      forwardForm.ecuId = toIdString(forwardInfo.ecuId || ecu.id);
+      forwardForm.projectId = toIdString(forwardInfo.projectId || projectId.value);
       forwardForm.pFlashMemoryStartAddress = forwardInfo.pFlashMemoryStartAddress || '';
       forwardForm.pFlashMemorySizeLimit = forwardInfo.pFlashMemorySizeLimit || '';
       forwardForm.ramMemoryStartAddress = forwardInfo.ramMemoryStartAddress || '';
       forwardForm.ramMemorySizeLimit = forwardInfo.ramMemorySizeLimit || '';
-      canInterfaces.value = (detail.canInterfaces || []).map(item => ({ ...item }));
-      linInterfaces.value = (detail.linInterfaces || []).map(item => ({ ...item }));
-      ethInterfaces.value = (detail.ethInterfaces || []).map(item => ({ ...item }));
+      canInterfaces.value = (detail.canInterfaces || []).map(item => ({
+        ...item,
+        id: toIdString(item.id),
+        projectId: toIdString(item.projectId || projectId.value),
+        ecuId: toIdString(item.ecuId || ecu.id)
+      }));
+      linInterfaces.value = (detail.linInterfaces || []).map(item => ({
+        ...item,
+        id: toIdString(item.id),
+        projectId: toIdString(item.projectId || projectId.value),
+        ecuId: toIdString(item.ecuId || ecu.id)
+      }));
+      ethInterfaces.value = (detail.ethInterfaces || []).map(item => ({
+        ...item,
+        id: toIdString(item.id),
+        projectId: toIdString(item.projectId || projectId.value),
+        ecuId: toIdString(item.ecuId || ecu.id)
+      }));
     };
 
     const openCreateDialog = () => {
@@ -496,13 +516,13 @@ export default {
 
     const openViewDialog = async ecu => {
       dialogMode.value = 'view';
-      await loadDetail(ecu.id);
+      await loadDetail(toIdString(ecu.id));
       dialogVisible.value = true;
     };
 
     const openEditDialog = async ecu => {
       dialogMode.value = 'edit';
-      await loadDetail(ecu.id);
+      await loadDetail(toIdString(ecu.id));
       dialogVisible.value = true;
     };
 
@@ -549,7 +569,7 @@ export default {
 
     const buildPayload = () => ({
       ecu: {
-        id: ecuForm.id || undefined,
+        id: toIdString(ecuForm.id) || undefined,
         projectId: projectId.value,
         name: ecuForm.name,
         type: ecuForm.type,
@@ -560,8 +580,8 @@ export default {
         index: ecuForm.index
       },
       forwardInfo: {
-        id: forwardForm.id || undefined,
-        ecuId: ecuForm.id || undefined,
+        id: toIdString(forwardForm.id) || undefined,
+        ecuId: toIdString(ecuForm.id) || undefined,
         projectId: projectId.value,
         pFlashMemoryStartAddress: forwardForm.pFlashMemoryStartAddress,
         pFlashMemorySizeLimit: forwardForm.pFlashMemorySizeLimit,
@@ -632,9 +652,9 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         });
-        await deleteEcu(projectId.value, ecu.id);
+        await deleteEcu(projectId.value, toIdString(ecu.id));
         ElMessage.success('ECU 已删除');
-        selectedIds.value = selectedIds.value.filter(id => id !== ecu.id);
+        selectedIds.value = selectedIds.value.filter(id => id !== toIdString(ecu.id));
         if (ecus.value.length === 1 && page.value > 1) {
           page.value -= 1;
         }
@@ -667,12 +687,13 @@ export default {
     };
 
     const toggleSelection = (id, checked) => {
+      const selectedId = toIdString(id);
       if (checked) {
-        if (!selectedIds.value.includes(id)) {
-          selectedIds.value = [...selectedIds.value, id];
+        if (!selectedIds.value.includes(selectedId)) {
+          selectedIds.value = [...selectedIds.value, selectedId];
         }
       } else {
-        selectedIds.value = selectedIds.value.filter(selectedId => selectedId !== id);
+        selectedIds.value = selectedIds.value.filter(currentId => currentId !== selectedId);
       }
     };
 

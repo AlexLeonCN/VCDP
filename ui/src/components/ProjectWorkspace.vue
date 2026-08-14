@@ -40,7 +40,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { ArrowLeft, HomeFilled, Setting } from '@element-plus/icons-vue';
-import { fetchProject } from '../api';
+import { fetchProject, toIdString } from '../api';
 
 export default {
   name: 'ProjectWorkspace',
@@ -59,7 +59,10 @@ export default {
     const loadProject = async () => {
       loading.value = true;
       try {
-        project.value = await fetchProject(props.id);
+        const loaded = await fetchProject(props.id);
+        project.value = loaded
+          ? { ...loaded, id: toIdString(loaded.id) }
+          : null;
       } catch (error) {
         ElMessage.error(error.message || '加载工程失败');
       } finally {

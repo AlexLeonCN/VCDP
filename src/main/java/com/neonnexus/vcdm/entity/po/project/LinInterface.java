@@ -3,7 +3,7 @@ package com.neonnexus.vcdm.entity.po.project;
 import lombok.Data;
 
 @Data
-public class EcuLinInterface {
+public class LinInterface {
     private String id;
     private String projectId;
     private String ecuId;

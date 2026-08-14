@@ -12,7 +12,7 @@
         <result column="ram_memory_size_limit" property="ramMemorySizeLimit"/>
     </resultMap>
 
-    <resultMap id="EcuCanInterfaceResultMap" type="com.neonnexus.vcdm.entity.po.project.EcuCanInterface">
+    <resultMap id="EcuCanInterfaceResultMap" type="com.neonnexus.vcdm.entity.po.project.CanInterface">
         <id column="id" property="id"/>
         <result column="project_id" property="projectId"/>
         <result column="ecu_id" property="ecuId"/>
@@ -23,7 +23,7 @@
         <result column="conn_type" property="connType"/>
     </resultMap>
 
-    <resultMap id="EcuLinInterfaceResultMap" type="com.neonnexus.vcdm.entity.po.project.EcuLinInterface">
+    <resultMap id="EcuLinInterfaceResultMap" type="com.neonnexus.vcdm.entity.po.project.LinInterface">
         <id column="id" property="id"/>
         <result column="project_id" property="projectId"/>
         <result column="ecu_id" property="ecuId"/>
@@ -32,7 +32,7 @@
         <result column="port" property="port"/>
     </resultMap>
 
-    <resultMap id="EcuEthInterfaceResultMap" type="com.neonnexus.vcdm.entity.po.project.EcuEthInterface">
+    <resultMap id="EcuEthInterfaceResultMap" type="com.neonnexus.vcdm.entity.po.project.EthInterface">
         <id column="id" property="id"/>
         <result column="project_id" property="projectId"/>
         <result column="ecu_id" property="ecuId"/>

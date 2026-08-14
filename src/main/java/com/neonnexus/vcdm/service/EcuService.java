@@ -8,10 +8,10 @@ import com.neonnexus.vcdm.common.enumation.EcuCanInterfaceTypeEnum;
 import com.neonnexus.vcdm.common.enumation.EthPortTypeEnum;
 import com.neonnexus.vcdm.entity.dto.EcuConfig;
 import com.neonnexus.vcdm.entity.po.project.Ecu;
-import com.neonnexus.vcdm.entity.po.project.EcuCanInterface;
-import com.neonnexus.vcdm.entity.po.project.EcuEthInterface;
+import com.neonnexus.vcdm.entity.po.project.CanInterface;
+import com.neonnexus.vcdm.entity.po.project.EthInterface;
 import com.neonnexus.vcdm.entity.po.project.EcuForwardInfo;
-import com.neonnexus.vcdm.entity.po.project.EcuLinInterface;
+import com.neonnexus.vcdm.entity.po.project.LinInterface;
 import com.neonnexus.vcdm.exception.VCDPException;
 import com.neonnexus.vcdm.mapper.EcuConfigMapper;
 import com.neonnexus.vcdm.mapper.EcuMapper;
@@ -78,9 +78,9 @@ public class EcuService {
         normalizeForwardInfo(forwardInfo, projectId, ecu.getId(), true);
         ecuConfigMapper.insertForwardInfo(forwardInfo);
 
-        List<EcuCanInterface> canInterfaces = normalizeCanInterfaces(request.getCanInterfaces(), projectId, ecu.getId());
-        List<EcuLinInterface> linInterfaces = normalizeLinInterfaces(request.getLinInterfaces(), projectId, ecu.getId());
-        List<EcuEthInterface> ethInterfaces = normalizeEthInterfaces(request.getEthInterfaces(), projectId, ecu.getId());
+        List<CanInterface> canInterfaces = normalizeCanInterfaces(request.getCanInterfaces(), projectId, ecu.getId());
+        List<LinInterface> linInterfaces = normalizeLinInterfaces(request.getLinInterfaces(), projectId, ecu.getId());
+        List<EthInterface> ethInterfaces = normalizeEthInterfaces(request.getEthInterfaces(), projectId, ecu.getId());
         validateInterfaceUniqueness(canInterfaces, linInterfaces, ethInterfaces);
 
         insertInterfaces(canInterfaces, linInterfaces, ethInterfaces);
@@ -110,9 +110,9 @@ public class EcuService {
         ecuConfigMapper.deleteLinInterfacesByEcuId(ecuId);
         ecuConfigMapper.deleteEthInterfacesByEcuId(ecuId);
 
-        List<EcuCanInterface> canInterfaces = normalizeCanInterfaces(request.getCanInterfaces(), projectId, ecuId);
-        List<EcuLinInterface> linInterfaces = normalizeLinInterfaces(request.getLinInterfaces(), projectId, ecuId);
-        List<EcuEthInterface> ethInterfaces = normalizeEthInterfaces(request.getEthInterfaces(), projectId, ecuId);
+        List<CanInterface> canInterfaces = normalizeCanInterfaces(request.getCanInterfaces(), projectId, ecuId);
+        List<LinInterface> linInterfaces = normalizeLinInterfaces(request.getLinInterfaces(), projectId, ecuId);
+        List<EthInterface> ethInterfaces = normalizeEthInterfaces(request.getEthInterfaces(), projectId, ecuId);
         validateInterfaceUniqueness(canInterfaces, linInterfaces, ethInterfaces);
         insertInterfaces(canInterfaces, linInterfaces, ethInterfaces);
 
@@ -157,9 +157,9 @@ public class EcuService {
         ecuConfigMapper.deleteEthInterfacesByEcuIds(ecuIds);
     }
 
-    private void insertInterfaces(List<EcuCanInterface> canInterfaces,
-                                  List<EcuLinInterface> linInterfaces,
-                                  List<EcuEthInterface> ethInterfaces) {
+    private void insertInterfaces(List<CanInterface> canInterfaces,
+                                  List<LinInterface> linInterfaces,
+                                  List<EthInterface> ethInterfaces) {
         if (!canInterfaces.isEmpty()) {
             ecuConfigMapper.insertCanInterfaces(canInterfaces);
         }
@@ -173,17 +173,17 @@ public class EcuService {
 
     private EcuConfig buildEcuConfig(Ecu ecu) {
         EcuForwardInfo forwardInfo = ecuConfigMapper.findForwardInfoByEcuId(ecu.getId());
-        List<EcuCanInterface> canInterfaces = ecuConfigMapper.findCanInterfacesByEcuId(ecu.getId());
-        List<EcuLinInterface> linInterfaces = ecuConfigMapper.findLinInterfacesByEcuId(ecu.getId());
-        List<EcuEthInterface> ethInterfaces = ecuConfigMapper.findEthInterfacesByEcuId(ecu.getId());
+        List<CanInterface> canInterfaces = ecuConfigMapper.findCanInterfacesByEcuId(ecu.getId());
+        List<LinInterface> linInterfaces = ecuConfigMapper.findLinInterfacesByEcuId(ecu.getId());
+        List<EthInterface> ethInterfaces = ecuConfigMapper.findEthInterfacesByEcuId(ecu.getId());
         return buildEcuConfig(ecu, forwardInfo, canInterfaces, linInterfaces, ethInterfaces);
     }
 
     private EcuConfig buildEcuConfig(Ecu ecu,
                                      EcuForwardInfo forwardInfo,
-                                     List<EcuCanInterface> canInterfaces,
-                                     List<EcuLinInterface> linInterfaces,
-                                     List<EcuEthInterface> ethInterfaces) {
+                                     List<CanInterface> canInterfaces,
+                                     List<LinInterface> linInterfaces,
+                                     List<EthInterface> ethInterfaces) {
         EcuConfig config = new EcuConfig();
         config.setEcu(ecu);
         config.setForwardInfo(forwardInfo);
@@ -241,12 +241,12 @@ public class EcuService {
                 normalizePositiveHex(forwardInfo.getRamMemorySizeLimit(), ErrorConstant.EcuForward.RAM_SIZE_INVALID));
     }
 
-    private List<EcuCanInterface> normalizeCanInterfaces(List<EcuCanInterface> items, String projectId, String ecuId) {
+    private List<CanInterface> normalizeCanInterfaces(List<CanInterface> items, String projectId, String ecuId) {
         if (items == null) {
             return Collections.emptyList();
         }
-        List<EcuCanInterface> result = new ArrayList<>();
-        for (EcuCanInterface item : items) {
+        List<CanInterface> result = new ArrayList<>();
+        for (CanInterface item : items) {
             if (item == null) {
                 continue;
             }
@@ -269,12 +269,12 @@ public class EcuService {
         return result;
     }
 
-    private List<EcuLinInterface> normalizeLinInterfaces(List<EcuLinInterface> items, String projectId, String ecuId) {
+    private List<LinInterface> normalizeLinInterfaces(List<LinInterface> items, String projectId, String ecuId) {
         if (items == null) {
             return Collections.emptyList();
         }
-        List<EcuLinInterface> result = new ArrayList<>();
-        for (EcuLinInterface item : items) {
+        List<LinInterface> result = new ArrayList<>();
+        for (LinInterface item : items) {
             if (item == null) {
                 continue;
             }
@@ -291,12 +291,12 @@ public class EcuService {
         return result;
     }
 
-    private List<EcuEthInterface> normalizeEthInterfaces(List<EcuEthInterface> items, String projectId, String ecuId) {
+    private List<EthInterface> normalizeEthInterfaces(List<EthInterface> items, String projectId, String ecuId) {
         if (items == null) {
             return Collections.emptyList();
         }
-        List<EcuEthInterface> result = new ArrayList<>();
-        for (EcuEthInterface item : items) {
+        List<EthInterface> result = new ArrayList<>();
+        for (EthInterface item : items) {
             if (item == null) {
                 continue;
             }
@@ -316,16 +316,16 @@ public class EcuService {
         return result;
     }
 
-    private void validateInterfaceUniqueness(List<EcuCanInterface> canInterfaces,
-                                             List<EcuLinInterface> linInterfaces,
-                                             List<EcuEthInterface> ethInterfaces) {
+    private void validateInterfaceUniqueness(List<CanInterface> canInterfaces,
+                                             List<LinInterface> linInterfaces,
+                                             List<EthInterface> ethInterfaces) {
         Set<String> names = new HashSet<>();
         Set<Integer> ports = new HashSet<>();
         Set<Integer> canChannels = new HashSet<>();
         Set<Integer> linChannels = new HashSet<>();
         Set<Integer> ethChannels = new HashSet<>();
 
-        for (EcuCanInterface item : canInterfaces) {
+        for (CanInterface item : canInterfaces) {
             if (!names.add(item.getInterfaceName())) {
                 throw new VCDPException(ErrorConstant.CanInterface.NAME_DUPLICATE);
             }
@@ -336,7 +336,7 @@ public class EcuService {
                 throw new VCDPException(ErrorConstant.CanInterface.CHANNEL_DUPLICATE);
             }
         }
-        for (EcuLinInterface item : linInterfaces) {
+        for (LinInterface item : linInterfaces) {
             if (!names.add(item.getInterfaceName())) {
                 throw new VCDPException(ErrorConstant.LinInterface.NAME_DUPLICATE);
             }
@@ -347,7 +347,7 @@ public class EcuService {
                 throw new VCDPException(ErrorConstant.LinInterface.CHANNEL_DUPLICATE);
             }
         }
-        for (EcuEthInterface item : ethInterfaces) {
+        for (EthInterface item : ethInterfaces) {
             if (!names.add(item.getInterfaceName())) {
                 throw new VCDPException(ErrorConstant.EthInterface.NAME_DUPLICATE);
             }

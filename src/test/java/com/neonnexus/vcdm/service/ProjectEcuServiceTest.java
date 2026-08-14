@@ -3,10 +3,10 @@ package com.neonnexus.vcdm.service;
 import com.neonnexus.vcdm.common.ErrorConstant;
 import com.neonnexus.vcdm.entity.dto.EcuConfig;
 import com.neonnexus.vcdm.entity.po.project.Ecu;
-import com.neonnexus.vcdm.entity.po.project.EcuCanInterface;
-import com.neonnexus.vcdm.entity.po.project.EcuEthInterface;
+import com.neonnexus.vcdm.entity.po.project.CanInterface;
+import com.neonnexus.vcdm.entity.po.project.EthInterface;
 import com.neonnexus.vcdm.entity.po.project.EcuForwardInfo;
-import com.neonnexus.vcdm.entity.po.project.EcuLinInterface;
+import com.neonnexus.vcdm.entity.po.project.LinInterface;
 import com.neonnexus.vcdm.entity.po.project.Project;
 import com.neonnexus.vcdm.exception.VCDPException;
 import com.neonnexus.vcdm.support.DatabaseTestSupport;
@@ -169,19 +169,19 @@ class ProjectEcuServiceTest {
         forwardInfo.setRamMemoryStartAddress("0X3000");
         forwardInfo.setRamMemorySizeLimit("4000");
 
-        EcuCanInterface can = new EcuCanInterface();
+        CanInterface can = new CanInterface();
         can.setInterfaceName("CAN1");
         can.setChannelId(0);
         can.setPort(100);
         can.setType(0);
         can.setConnType(1);
 
-        EcuLinInterface lin = new EcuLinInterface();
+        LinInterface lin = new LinInterface();
         lin.setInterfaceName("LIN1");
         lin.setChannelId(0);
         lin.setPort(101);
 
-        EcuEthInterface eth = new EcuEthInterface();
+        EthInterface eth = new EthInterface();
         eth.setInterfaceName("ETH1");
         eth.setChannelId(1);
         eth.setPort(102);

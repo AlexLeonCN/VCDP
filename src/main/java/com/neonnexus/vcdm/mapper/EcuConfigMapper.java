@@ -1,9 +1,9 @@
 package com.neonnexus.vcdm.mapper;
 
-import com.neonnexus.vcdm.entity.po.project.EcuCanInterface;
-import com.neonnexus.vcdm.entity.po.project.EcuEthInterface;
+import com.neonnexus.vcdm.entity.po.project.CanInterface;
+import com.neonnexus.vcdm.entity.po.project.EthInterface;
 import com.neonnexus.vcdm.entity.po.project.EcuForwardInfo;
-import com.neonnexus.vcdm.entity.po.project.EcuLinInterface;
+import com.neonnexus.vcdm.entity.po.project.LinInterface;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,25 +19,25 @@ public interface EcuConfigMapper {
 
     int deleteForwardInfoByEcuIds(@Param("ecuIds") List<String> ecuIds);
 
-    List<EcuCanInterface> findCanInterfacesByEcuId(@Param("ecuId") String ecuId);
+    List<CanInterface> findCanInterfacesByEcuId(@Param("ecuId") String ecuId);
 
-    int insertCanInterfaces(@Param("items") List<EcuCanInterface> items);
+    int insertCanInterfaces(@Param("items") List<CanInterface> items);
 
     int deleteCanInterfacesByEcuId(@Param("ecuId") String ecuId);
 
     int deleteCanInterfacesByEcuIds(@Param("ecuIds") List<String> ecuIds);
 
-    List<EcuLinInterface> findLinInterfacesByEcuId(@Param("ecuId") String ecuId);
+    List<LinInterface> findLinInterfacesByEcuId(@Param("ecuId") String ecuId);
 
-    int insertLinInterfaces(@Param("items") List<EcuLinInterface> items);
+    int insertLinInterfaces(@Param("items") List<LinInterface> items);
 
     int deleteLinInterfacesByEcuId(@Param("ecuId") String ecuId);
 
     int deleteLinInterfacesByEcuIds(@Param("ecuIds") List<String> ecuIds);
 
-    List<EcuEthInterface> findEthInterfacesByEcuId(@Param("ecuId") String ecuId);
+    List<EthInterface> findEthInterfacesByEcuId(@Param("ecuId") String ecuId);
 
-    int insertEthInterfaces(@Param("items") List<EcuEthInterface> items);
+    int insertEthInterfaces(@Param("items") List<EthInterface> items);
 
     int deleteEthInterfacesByEcuId(@Param("ecuId") String ecuId);
 

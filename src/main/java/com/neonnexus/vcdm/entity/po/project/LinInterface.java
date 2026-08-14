@@ -1,13 +1,11 @@
 package com.neonnexus.vcdm.entity.po.project;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
-public class LinInterface {
-    private String id;
-    private String projectId;
-    private String ecuId;
-    private String interfaceName;
-    private Integer channelId;
-    private Integer port;
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class LinInterface extends EcuInterface {
 }

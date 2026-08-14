@@ -3,12 +3,10 @@
     <el-container>
       <el-header class="dashboard-header">
         <div class="header-content">
-          <div class="header-left">
-            <div class="logo-container" @click="goToHome">
-              <img :src="logoImg" alt="VCDP Logo" class="car-icon" />
-            </div>
-            <h1 class="site-title">VCDP-车辆通信设计平台</h1>
-          </div>
+          <h1 class="site-title" @click="goToHome">
+            VCDP
+            <span>车辆通信设计平台</span>
+          </h1>
         </div>
       </el-header>
 
@@ -105,7 +103,6 @@ import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Delete, Edit, Plus } from '@element-plus/icons-vue';
-import logoImg from '../assets/logo.png';
 import { batchDeleteProjects, createProject, deleteProject, fetchProjects, toIdString, updateProject } from '../api';
 
 export default {
@@ -284,7 +281,6 @@ export default {
       enterProject,
       loadProjects,
       loading,
-      logoImg,
       openCreateDialog,
       openEditDialog,
       page,
@@ -313,9 +309,10 @@ export default {
 
 .dashboard-header {
   width: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-bottom: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: rgba(8, 14, 26, 0.82);
+  border-bottom: 1px solid var(--tech-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(16px);
   padding: 0;
   height: 64px;
   flex-shrink: 0;
@@ -328,67 +325,36 @@ export default {
 
 .header-content {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   height: 100%;
   width: 100%;
-  padding: 0 24px;
+  padding: 0 28px;
   max-width: 100vw;
   box-sizing: border-box;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.logo-container {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-}
-
-.logo-container:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-}
-
-.car-icon {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
 .site-title {
-  font-size: 26px;
-  font-weight: 800;
-  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   margin: 0;
-  letter-spacing: 3px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
+  cursor: pointer;
+  font-family: "Orbitron", "Segoe UI", sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--tech-accent);
+  text-shadow: 0 0 18px rgba(0, 212, 255, 0.35);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-shrink: 1;
+}
+
+.site-title span {
+  margin-left: 14px;
+  font-family: "Rajdhani", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  color: var(--tech-muted);
+  text-shadow: none;
 }
 
 :deep(.el-container) {
@@ -399,15 +365,15 @@ export default {
 
 :deep(.el-main) {
   width: 100%;
-  background-color: #f5f7fa;
-  padding: 24px;
+  background: transparent;
+  padding: 28px;
   flex: 1;
   overflow-y: auto;
 }
 
 .project-toolbar {
   max-width: 1200px;
-  margin: 0 auto 20px;
+  margin: 0 auto 24px;
   display: flex;
   justify-content: space-between;
   gap: 16px;
@@ -416,12 +382,13 @@ export default {
 
 .project-toolbar h2 {
   margin: 0 0 8px;
-  color: #303133;
+  color: var(--tech-text);
+  letter-spacing: 0.12em;
 }
 
 .project-toolbar p {
   margin: 0;
-  color: #606266;
+  color: var(--tech-muted);
 }
 
 .toolbar-actions {
@@ -444,10 +411,10 @@ export default {
   position: relative;
   min-height: 150px;
   padding: 24px 16px 18px;
-  border: 1px solid #e4e7ed;
+  border: 1px solid var(--tech-border);
   border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  background: linear-gradient(180deg, rgba(14, 28, 46, 0.92), rgba(8, 16, 28, 0.92));
+  box-shadow: inset 0 1px 0 rgba(0, 212, 255, 0.08);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -458,8 +425,8 @@ export default {
 
 .project-card:hover {
   transform: translateY(-3px);
-  border-color: #409eff;
-  box-shadow: 0 10px 24px rgba(64, 158, 255, 0.18);
+  border-color: var(--tech-border-strong);
+  box-shadow: 0 0 24px rgba(0, 212, 255, 0.14);
 }
 
 .project-select {
@@ -485,7 +452,7 @@ export default {
 .project-name {
   max-width: 100%;
   margin: 0;
-  color: #303133;
+  color: var(--tech-text);
   font-size: 18px;
   font-weight: 700;
   line-height: 1.4;
@@ -498,7 +465,7 @@ export default {
 .project-desc {
   max-width: 100%;
   margin: 10px 0 0;
-  color: #606266;
+  color: var(--tech-muted);
   font-size: 13px;
   line-height: 1.5;
   text-align: center;
@@ -526,14 +493,11 @@ export default {
 
   .site-title {
     font-size: 16px;
-    letter-spacing: 1px;
-    max-width: 200px;
+    letter-spacing: 0.12em;
   }
 
-  .logo-container {
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
+  .site-title span {
+    display: none;
   }
 
   .project-toolbar {
@@ -552,17 +516,6 @@ export default {
 
   .site-title {
     font-size: 14px;
-    letter-spacing: 0.5px;
-    max-width: 150px;
-  }
-
-  .header-left {
-    gap: 12px;
-  }
-
-  .logo-container {
-    width: 32px;
-    height: 32px;
   }
 }
 </style>

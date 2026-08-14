@@ -20,7 +20,5 @@ export default {
 #app {
   width: 100%;
   min-height: 100vh;
-  background: #f5f7fa;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 </style>

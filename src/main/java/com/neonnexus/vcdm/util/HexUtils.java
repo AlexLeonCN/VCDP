@@ -13,11 +13,11 @@ public final class HexUtils {
     }
 
     /**
-     * 规范化十六进制字符串。
+     * 去掉可选的 0x/0X 前缀，并转为大写十六进制正文。
      *
-     * @return 形如 0xABC 的字符串；非法时返回 null
+     * @return 不含前缀的大写十六进制；非法时返回 null
      */
-    public static String normalize(String value) {
+    public static String stripPrefix(String value) {
         if (value == null) {
             return null;
         }
@@ -32,7 +32,24 @@ public final class HexUtils {
         if (hex.isEmpty() || !HEX_PATTERN.matcher(hex).matches()) {
             return null;
         }
-        return "0x" + hex;
+        return hex;
+    }
+
+    /**
+     * 校验是否为合法十六进制字符串（可带或不带 0x/0X 前缀）。
+     */
+    public static boolean isValid(String value) {
+        return stripPrefix(value) != null;
+    }
+
+    /**
+     * 规范化十六进制字符串。
+     *
+     * @return 形如 0xABC 的字符串；非法时返回 null
+     */
+    public static String normalize(String value) {
+        String hex = stripPrefix(value);
+        return hex == null ? null : "0x" + hex;
     }
 
     /**

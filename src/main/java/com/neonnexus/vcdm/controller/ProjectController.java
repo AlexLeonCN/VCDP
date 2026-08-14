@@ -30,7 +30,7 @@ public class ProjectController {
     }
 
     @GetMapping("/api/projects/{id}")
-    public Result<Project> getProject(@PathVariable Long id) {
+    public Result<Project> getProject(@PathVariable String id) {
         return Result.success(projectService.getProject(id));
     }
 
@@ -40,12 +40,12 @@ public class ProjectController {
     }
 
     @PutMapping("/api/projects/{id}")
-    public Result<Project> updateProject(@PathVariable Long id, @RequestBody Project project) {
+    public Result<Project> updateProject(@PathVariable String id, @RequestBody Project project) {
         return Result.success("工程更新成功", projectService.updateProject(id, project));
     }
 
     @DeleteMapping("/api/projects/{id}")
-    public Result<Void> deleteProject(@PathVariable Long id) {
+    public Result<Void> deleteProject(@PathVariable String id) {
         projectService.deleteProject(id);
         return Result.success("工程删除成功", null);
     }
@@ -58,6 +58,6 @@ public class ProjectController {
 
     @Data
     public static class BatchDeleteRequest {
-        private List<Long> ids;
+        private List<String> ids;
     }
 }

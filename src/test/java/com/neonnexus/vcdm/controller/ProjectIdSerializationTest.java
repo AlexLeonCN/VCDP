@@ -58,11 +58,11 @@ class ProjectIdSerializationTest {
         String createdId = createdIdNode.asText();
         assertTrue(createdId.matches("\\d{15,}"));
 
-        Long dbId = jdbcTemplate.queryForObject(
-                "SELECT id FROM project WHERE name = ?",
-                Long.class,
+        String dbId = jdbcTemplate.queryForObject(
+                "SELECT CAST(id AS VARCHAR) FROM project WHERE name = ?",
+                String.class,
                 "工程ID测试");
-        assertEquals(String.valueOf(dbId), createdId);
+        assertEquals(dbId, createdId);
 
         MvcResult listResult = mockMvc.perform(get("/api/projects").param("page", "1").param("size", "12"))
                 .andExpect(status().isOk())
@@ -147,12 +147,12 @@ class ProjectIdSerializationTest {
         String ecuId = ecu.path("ecu").path("id").asText();
         assertTrue(ecu.path("ecu").path("id").isTextual());
 
-        Long dbEcuId = jdbcTemplate.queryForObject(
-                "SELECT id FROM ecu WHERE project_id = ? AND name = ?",
-                Long.class,
-                Long.valueOf(projectId),
+        String dbEcuId = jdbcTemplate.queryForObject(
+                "SELECT CAST(id AS VARCHAR) FROM ecu WHERE project_id = ? AND name = ?",
+                String.class,
+                projectId,
                 "ECU-1");
-        assertEquals(String.valueOf(dbEcuId), ecuId);
+        assertEquals(dbEcuId, ecuId);
 
         mockMvc.perform(get("/api/projects/{projectId}/ecus/{ecuId}", projectId, ecuId))
                 .andExpect(status().isOk())

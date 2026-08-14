@@ -11,35 +11,35 @@ import java.util.List;
 
 @Mapper
 public interface EcuConfigMapper {
-    EcuForwardInfo findForwardInfoByEcuId(@Param("ecuId") Long ecuId);
+    EcuForwardInfo findForwardInfoByEcuId(@Param("ecuId") String ecuId);
 
     int insertForwardInfo(EcuForwardInfo forwardInfo);
 
-    int deleteForwardInfoByEcuId(@Param("ecuId") Long ecuId);
+    int deleteForwardInfoByEcuId(@Param("ecuId") String ecuId);
 
-    int deleteForwardInfoByEcuIds(@Param("ecuIds") List<Long> ecuIds);
+    int deleteForwardInfoByEcuIds(@Param("ecuIds") List<String> ecuIds);
 
-    List<EcuCanInterface> findCanInterfacesByEcuId(@Param("ecuId") Long ecuId);
+    List<EcuCanInterface> findCanInterfacesByEcuId(@Param("ecuId") String ecuId);
 
     int insertCanInterfaces(@Param("items") List<EcuCanInterface> items);
 
-    int deleteCanInterfacesByEcuId(@Param("ecuId") Long ecuId);
+    int deleteCanInterfacesByEcuId(@Param("ecuId") String ecuId);
 
-    int deleteCanInterfacesByEcuIds(@Param("ecuIds") List<Long> ecuIds);
+    int deleteCanInterfacesByEcuIds(@Param("ecuIds") List<String> ecuIds);
 
-    List<EcuLinInterface> findLinInterfacesByEcuId(@Param("ecuId") Long ecuId);
+    List<EcuLinInterface> findLinInterfacesByEcuId(@Param("ecuId") String ecuId);
 
     int insertLinInterfaces(@Param("items") List<EcuLinInterface> items);
 
-    int deleteLinInterfacesByEcuId(@Param("ecuId") Long ecuId);
+    int deleteLinInterfacesByEcuId(@Param("ecuId") String ecuId);
 
-    int deleteLinInterfacesByEcuIds(@Param("ecuIds") List<Long> ecuIds);
+    int deleteLinInterfacesByEcuIds(@Param("ecuIds") List<String> ecuIds);
 
-    List<EcuEthInterface> findEthInterfacesByEcuId(@Param("ecuId") Long ecuId);
+    List<EcuEthInterface> findEthInterfacesByEcuId(@Param("ecuId") String ecuId);
 
     int insertEthInterfaces(@Param("items") List<EcuEthInterface> items);
 
-    int deleteEthInterfacesByEcuId(@Param("ecuId") Long ecuId);
+    int deleteEthInterfacesByEcuId(@Param("ecuId") String ecuId);
 
-    int deleteEthInterfacesByEcuIds(@Param("ecuIds") List<Long> ecuIds);
+    int deleteEthInterfacesByEcuIds(@Param("ecuIds") List<String> ecuIds);
 }

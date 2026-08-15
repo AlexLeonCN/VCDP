@@ -3,7 +3,7 @@ package com.neonnexus.vcdm.entity.po.project.subnet;
 import lombok.Data;
 
 @Data
-public class Interface {
+public class SubnetInterface {
     private String id;
     private String netName; // 内部网段名称
     private String busName; // DBC总线名称

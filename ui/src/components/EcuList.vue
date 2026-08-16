@@ -2,7 +2,7 @@
   <div class="ecu-page">
     <section class="ecu-toolbar">
       <div>
-        <h2>ECU列表</h2>
+        <h2>拓扑配置</h2>
         <p>管理当前工程下的 ECU 基础配置与通信接口配置。</p>
       </div>
       <div class="toolbar-actions">

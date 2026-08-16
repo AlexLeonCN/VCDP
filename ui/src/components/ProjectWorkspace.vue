@@ -20,7 +20,7 @@
             </el-menu-item>
             <el-menu-item index="ecu">
               <el-icon><Setting /></el-icon>
-              <span>ECU配置</span>
+              <span>拓扑配置</span>
             </el-menu-item>
           </el-menu>
         </el-aside>

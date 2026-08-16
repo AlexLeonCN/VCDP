@@ -5,7 +5,7 @@
       <p v-if="project.description" class="description">{{ project.description }}</p>
       <p v-else class="description muted">该工程暂无描述。</p>
       <el-divider />
-      <p>请从左侧菜单进入 ECU 配置等工程内实例管理。</p>
+      <p>请从左侧菜单进入拓扑配置等工程内实例管理。</p>
       <p>后续新增的所有实例都应携带当前工程 ID：{{ project.id }}。</p>
     </el-card>
 

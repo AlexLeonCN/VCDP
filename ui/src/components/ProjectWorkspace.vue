@@ -7,7 +7,7 @@
           <el-divider direction="vertical" />
           <h1>{{ project?.name || '工程工作区' }}</h1>
         </div>
-        <span class="project-scope">当前工程实例</span>
+        <span class="project-scope" title="返回首页" @click="goHome">VCDP 车辆通信设计平台</span>
       </el-header>
 
       <el-container>
@@ -146,6 +146,14 @@ export default {
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-scope:hover {
+  background: rgba(0, 212, 255, 0.2);
+  border-color: rgba(0, 212, 255, 0.5);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.18);
 }
 
 .workspace-aside {

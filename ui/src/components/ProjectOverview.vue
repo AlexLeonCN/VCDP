@@ -6,7 +6,7 @@
       <p v-else class="description muted">该工程暂无描述。</p>
       <el-divider />
       <p>请从左侧菜单进入拓扑配置等工程内实例管理。</p>
-      <p>后续新增的所有实例都应携带当前工程 ID：{{ project.id }}。</p>
+      <p>当前工程 ID：{{ project.id }}。</p>
     </el-card>
 
     <el-empty v-else-if="!loading" description="工程不存在或已被删除">

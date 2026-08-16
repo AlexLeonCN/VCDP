@@ -2,11 +2,11 @@ package com.neonnexus.vcdp.service;
 
 import com.neonnexus.vcdp.common.ErrorConstant;
 import com.neonnexus.vcdp.entity.dto.EcuConfig;
+import com.neonnexus.vcdp.entity.po.interfaces.CanInterface;
+import com.neonnexus.vcdp.entity.po.interfaces.EthInterface;
+import com.neonnexus.vcdp.entity.po.interfaces.LinInterface;
 import com.neonnexus.vcdp.entity.po.project.Ecu;
-import com.neonnexus.vcdp.entity.po.project.CanInterface;
-import com.neonnexus.vcdp.entity.po.project.EthInterface;
 import com.neonnexus.vcdp.entity.po.project.EcuForwardInfo;
-import com.neonnexus.vcdp.entity.po.project.LinInterface;
 import com.neonnexus.vcdp.entity.po.project.Project;
 import com.neonnexus.vcdp.exception.VCDPException;
 import com.neonnexus.vcdp.support.DatabaseTestSupport;

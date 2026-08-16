@@ -1,6 +1,6 @@
 package com.neonnexus.vcdp.mapper;
 
-import com.neonnexus.vcdp.entity.po.project.CanInterface;
+import com.neonnexus.vcdp.entity.po.interfaces.CanInterface;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

@@ -10,7 +10,7 @@
 
       <el-container class="workspace-body">
         <el-aside width="228px" class="workspace-aside">
-          <div class="aside-project">
+          <div class="aside-project" :title="project?.description || ''" @click="goOverview">
             <div class="project-mark">{{ projectInitial }}</div>
             <div class="project-meta">
               <strong>{{ project?.name || '工程工作区' }}</strong>
@@ -89,6 +89,10 @@ export default {
       router.push('/home');
     };
 
+    const goOverview = () => {
+      router.push(`/projects/${props.id}`);
+    };
+
     const projectInitial = computed(() => {
       const name = project.value?.name?.trim();
       return name ? name.slice(0, 1).toUpperCase() : '工';
@@ -120,6 +124,7 @@ export default {
       activeMenu,
       projectInitial,
       goHome,
+      goOverview,
       handleMenuSelect,
       loading,
       project
@@ -193,6 +198,14 @@ export default {
   border-radius: 10px;
   background: rgba(0, 212, 255, 0.06);
   border: 1px solid rgba(0, 212, 255, 0.14);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aside-project:hover {
+  background: rgba(0, 212, 255, 0.12);
+  border-color: rgba(0, 212, 255, 0.32);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.12);
 }
 
 .project-mark {

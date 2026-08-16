@@ -18,8 +18,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // API 路径不处理，交给 Controller
-        // 静态资源（js、css、图片等）从 /static 目录提供
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/")
                 .resourceChain(false)
@@ -27,21 +25,26 @@ public class WebConfig implements WebMvcConfigurer {
                     @Override
                     protected Resource getResource(String resourcePath, Resource location) throws IOException {
                         Resource requestedResource = location.createRelative(resourcePath);
-                        
-                        // 如果请求的资源存在，直接返回
                         if (requestedResource.exists() && requestedResource.isReadable()) {
                             return requestedResource;
                         }
-                        
-                        // 如果请求的是 API 路径，不处理（交给 Controller）
-                        if (resourcePath.startsWith("api/")) {
+
+                        // API 与 H2 控制台交给对应处理器，缺失的静态文件返回 404
+                        if (resourcePath.startsWith("api/")
+                                || resourcePath.startsWith("h2-console")
+                                || hasFileExtension(resourcePath)) {
                             return null;
                         }
-                        
-                        // 其他所有请求都返回 index.html（支持 Vue Router 的 history 模式）
+
+                        // 无扩展名的前端路由回退到 index.html
                         return new ClassPathResource("/static/index.html");
+                    }
+
+                    private boolean hasFileExtension(String resourcePath) {
+                        int lastSlash = resourcePath.lastIndexOf('/');
+                        String filename = lastSlash >= 0 ? resourcePath.substring(lastSlash + 1) : resourcePath;
+                        return filename.contains(".");
                     }
                 });
     }
 }
-

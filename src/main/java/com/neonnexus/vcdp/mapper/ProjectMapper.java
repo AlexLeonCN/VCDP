@@ -22,5 +22,5 @@ public interface ProjectMapper {
 
     int deleteById(@Param("id") String id);
 
-    int deleteBatch(@Param("ids") List<String> ids);
+    int deleteByIds(@Param("ids") List<String> ids);
 }

@@ -53,7 +53,7 @@
         DELETE FROM project WHERE id = #{id}
     </delete>
 
-    <delete id="deleteBatch">
+    <delete id="deleteByIds">
         DELETE FROM project
         WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">

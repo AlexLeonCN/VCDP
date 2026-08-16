@@ -87,17 +87,14 @@ public class ProjectService {
             return 0;
         }
         cascadeDeleteEcus(ids);
-        return projectMapper.deleteBatch(ids);
+        return projectMapper.deleteByIds(ids);
     }
 
     private void cascadeDeleteEcus(List<String> projectIds) {
-        List<String> ecuIds = ecuMapper.findIdsByProjectIds(projectIds);
-        if (ecuIds != null && !ecuIds.isEmpty()) {
-            ecuForwardInfoMapper.deleteByEcuIds(ecuIds);
-            canInterfaceMapper.deleteByEcuIds(ecuIds);
-            linInterfaceMapper.deleteByEcuIds(ecuIds);
-            ethInterfaceMapper.deleteByEcuIds(ecuIds);
-        }
+        ecuForwardInfoMapper.deleteByProjectIds(projectIds);
+        canInterfaceMapper.deleteByProjectIds(projectIds);
+        linInterfaceMapper.deleteByProjectIds(projectIds);
+        ethInterfaceMapper.deleteByProjectIds(projectIds);
         ecuMapper.deleteByProjectIds(projectIds);
     }
 

@@ -2,7 +2,7 @@ package com.neonnexus.vcdp.service;
 
 import com.neonnexus.vcdp.common.ErrorConstant;
 import com.neonnexus.vcdp.common.PageResult;
-import com.neonnexus.vcdp.entity.po.project.Project;
+import com.neonnexus.vcdp.entity.po.Project;
 import com.neonnexus.vcdp.exception.VCDPException;
 import com.neonnexus.vcdp.mapper.CanInterfaceMapper;
 import com.neonnexus.vcdp.mapper.EcuForwardInfoMapper;

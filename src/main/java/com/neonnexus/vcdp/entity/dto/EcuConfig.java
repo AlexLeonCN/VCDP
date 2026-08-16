@@ -3,8 +3,8 @@ package com.neonnexus.vcdp.entity.dto;
 import com.neonnexus.vcdp.entity.po.interfaces.CanInterface;
 import com.neonnexus.vcdp.entity.po.interfaces.EthInterface;
 import com.neonnexus.vcdp.entity.po.interfaces.LinInterface;
-import com.neonnexus.vcdp.entity.po.project.Ecu;
-import com.neonnexus.vcdp.entity.po.project.EcuForwardInfo;
+import com.neonnexus.vcdp.entity.po.Ecu;
+import com.neonnexus.vcdp.entity.po.EcuForwardInfo;
 import lombok.Data;
 
 import java.util.List;

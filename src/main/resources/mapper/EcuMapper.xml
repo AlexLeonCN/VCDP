@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.neonnexus.vcdp.mapper.EcuMapper">
 
-    <resultMap id="EcuResultMap" type="com.neonnexus.vcdp.entity.po.project.Ecu">
+    <resultMap id="EcuResultMap" type="com.neonnexus.vcdp.entity.po.Ecu">
         <id column="id" property="id"/>
         <result column="project_id" property="projectId"/>
         <result column="name" property="name"/>

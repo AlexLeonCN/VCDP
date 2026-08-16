@@ -1,6 +1,6 @@
 package com.neonnexus.vcdp.mapper;
 
-import com.neonnexus.vcdp.entity.po.project.LinInterface;
+import com.neonnexus.vcdp.entity.po.interfaces.LinInterface;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

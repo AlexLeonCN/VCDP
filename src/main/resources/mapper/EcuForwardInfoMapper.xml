@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neonnexus.vcdp.mapper.EcuForwardInfoMapper">
+
+    <resultMap id="EcuForwardInfoResultMap" type="com.neonnexus.vcdp.entity.po.project.EcuForwardInfo">
+        <id column="id" property="id"/>
+        <result column="ecu_id" property="ecuId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="p_flash_memory_start_address" property="pFlashMemoryStartAddress"/>
+        <result column="p_flash_memory_size_limit" property="pFlashMemorySizeLimit"/>
+        <result column="ram_memory_start_address" property="ramMemoryStartAddress"/>
+        <result column="ram_memory_size_limit" property="ramMemorySizeLimit"/>
+    </resultMap>
+
+    <select id="findByEcuId" resultMap="EcuForwardInfoResultMap">
+        SELECT id,
+               ecu_id,
+               project_id,
+               p_flash_memory_start_address,
+               p_flash_memory_size_limit,
+               ram_memory_start_address,
+               ram_memory_size_limit
+        FROM ecu_forward_info
+        WHERE ecu_id = #{ecuId}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO ecu_forward_info (
+            id,
+            ecu_id,
+            project_id,
+            p_flash_memory_start_address,
+            p_flash_memory_size_limit,
+            ram_memory_start_address,
+            ram_memory_size_limit
+        )
+        VALUES (
+            #{id},
+            #{ecuId},
+            #{projectId},
+            #{pFlashMemoryStartAddress},
+            #{pFlashMemorySizeLimit},
+            #{ramMemoryStartAddress},
+            #{ramMemorySizeLimit}
+        )
+    </insert>
+
+    <delete id="deleteByEcuId">
+        DELETE FROM ecu_forward_info WHERE ecu_id = #{ecuId}
+    </delete>
+
+    <delete id="deleteByEcuIds">
+        DELETE FROM ecu_forward_info
+        WHERE ecu_id IN
+        <foreach collection="ecuIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

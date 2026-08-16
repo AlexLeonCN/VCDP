@@ -13,8 +13,11 @@ import com.neonnexus.vcdp.entity.po.project.EthInterface;
 import com.neonnexus.vcdp.entity.po.project.EcuForwardInfo;
 import com.neonnexus.vcdp.entity.po.project.LinInterface;
 import com.neonnexus.vcdp.exception.VCDPException;
-import com.neonnexus.vcdp.mapper.EcuConfigMapper;
+import com.neonnexus.vcdp.mapper.CanInterfaceMapper;
+import com.neonnexus.vcdp.mapper.EcuForwardInfoMapper;
 import com.neonnexus.vcdp.mapper.EcuMapper;
+import com.neonnexus.vcdp.mapper.EthInterfaceMapper;
+import com.neonnexus.vcdp.mapper.LinInterfaceMapper;
 import com.neonnexus.vcdp.mapper.ProjectMapper;
 import com.neonnexus.vcdp.util.HexUtils;
 import com.neonnexus.vcdp.util.SnowflakeIdGenerator;
@@ -42,7 +45,10 @@ public class EcuService {
 
     private final ProjectMapper projectMapper;
     private final EcuMapper ecuMapper;
-    private final EcuConfigMapper ecuConfigMapper;
+    private final EcuForwardInfoMapper ecuForwardInfoMapper;
+    private final CanInterfaceMapper canInterfaceMapper;
+    private final LinInterfaceMapper linInterfaceMapper;
+    private final EthInterfaceMapper ethInterfaceMapper;
     private final SnowflakeIdGenerator snowflakeIdGenerator;
 
     public PageResult<Ecu> listEcus(String projectId, Integer page, Integer size) {
@@ -76,7 +82,7 @@ public class EcuService {
         ecuMapper.insert(ecu);
 
         normalizeForwardInfo(forwardInfo, projectId, ecu.getId(), true);
-        ecuConfigMapper.insertForwardInfo(forwardInfo);
+        ecuForwardInfoMapper.insert(forwardInfo);
 
         List<CanInterface> canInterfaces = normalizeCanInterfaces(request.getCanInterfaces(), projectId, ecu.getId());
         List<LinInterface> linInterfaces = normalizeLinInterfaces(request.getLinInterfaces(), projectId, ecu.getId());
@@ -102,13 +108,13 @@ public class EcuService {
         ecuMapper.update(ecu);
 
         EcuForwardInfo forwardInfo = requireForwardInfo(request);
-        ecuConfigMapper.deleteForwardInfoByEcuId(ecuId);
+        ecuForwardInfoMapper.deleteByEcuId(ecuId);
         normalizeForwardInfo(forwardInfo, projectId, ecuId, false);
-        ecuConfigMapper.insertForwardInfo(forwardInfo);
+        ecuForwardInfoMapper.insert(forwardInfo);
 
-        ecuConfigMapper.deleteCanInterfacesByEcuId(ecuId);
-        ecuConfigMapper.deleteLinInterfacesByEcuId(ecuId);
-        ecuConfigMapper.deleteEthInterfacesByEcuId(ecuId);
+        canInterfaceMapper.deleteByEcuId(ecuId);
+        linInterfaceMapper.deleteByEcuId(ecuId);
+        ethInterfaceMapper.deleteByEcuId(ecuId);
 
         List<CanInterface> canInterfaces = normalizeCanInterfaces(request.getCanInterfaces(), projectId, ecuId);
         List<LinInterface> linInterfaces = normalizeLinInterfaces(request.getLinInterfaces(), projectId, ecuId);
@@ -151,31 +157,31 @@ public class EcuService {
     }
 
     private void deleteConfigs(List<String> ecuIds) {
-        ecuConfigMapper.deleteForwardInfoByEcuIds(ecuIds);
-        ecuConfigMapper.deleteCanInterfacesByEcuIds(ecuIds);
-        ecuConfigMapper.deleteLinInterfacesByEcuIds(ecuIds);
-        ecuConfigMapper.deleteEthInterfacesByEcuIds(ecuIds);
+        ecuForwardInfoMapper.deleteByEcuIds(ecuIds);
+        canInterfaceMapper.deleteByEcuIds(ecuIds);
+        linInterfaceMapper.deleteByEcuIds(ecuIds);
+        ethInterfaceMapper.deleteByEcuIds(ecuIds);
     }
 
     private void insertInterfaces(List<CanInterface> canInterfaces,
                                   List<LinInterface> linInterfaces,
                                   List<EthInterface> ethInterfaces) {
         if (!canInterfaces.isEmpty()) {
-            ecuConfigMapper.insertCanInterfaces(canInterfaces);
+            canInterfaceMapper.insertBatch(canInterfaces);
         }
         if (!linInterfaces.isEmpty()) {
-            ecuConfigMapper.insertLinInterfaces(linInterfaces);
+            linInterfaceMapper.insertBatch(linInterfaces);
         }
         if (!ethInterfaces.isEmpty()) {
-            ecuConfigMapper.insertEthInterfaces(ethInterfaces);
+            ethInterfaceMapper.insertBatch(ethInterfaces);
         }
     }
 
     private EcuConfig buildEcuConfig(Ecu ecu) {
-        EcuForwardInfo forwardInfo = ecuConfigMapper.findForwardInfoByEcuId(ecu.getId());
-        List<CanInterface> canInterfaces = ecuConfigMapper.findCanInterfacesByEcuId(ecu.getId());
-        List<LinInterface> linInterfaces = ecuConfigMapper.findLinInterfacesByEcuId(ecu.getId());
-        List<EthInterface> ethInterfaces = ecuConfigMapper.findEthInterfacesByEcuId(ecu.getId());
+        EcuForwardInfo forwardInfo = ecuForwardInfoMapper.findByEcuId(ecu.getId());
+        List<CanInterface> canInterfaces = canInterfaceMapper.findByEcuId(ecu.getId());
+        List<LinInterface> linInterfaces = linInterfaceMapper.findByEcuId(ecu.getId());
+        List<EthInterface> ethInterfaces = ethInterfaceMapper.findByEcuId(ecu.getId());
         return buildEcuConfig(ecu, forwardInfo, canInterfaces, linInterfaces, ethInterfaces);
     }
 

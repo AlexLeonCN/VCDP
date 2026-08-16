@@ -4,8 +4,11 @@ import com.neonnexus.vcdp.common.ErrorConstant;
 import com.neonnexus.vcdp.common.PageResult;
 import com.neonnexus.vcdp.entity.po.project.Project;
 import com.neonnexus.vcdp.exception.VCDPException;
-import com.neonnexus.vcdp.mapper.EcuConfigMapper;
+import com.neonnexus.vcdp.mapper.CanInterfaceMapper;
+import com.neonnexus.vcdp.mapper.EcuForwardInfoMapper;
 import com.neonnexus.vcdp.mapper.EcuMapper;
+import com.neonnexus.vcdp.mapper.EthInterfaceMapper;
+import com.neonnexus.vcdp.mapper.LinInterfaceMapper;
 import com.neonnexus.vcdp.mapper.ProjectMapper;
 import com.neonnexus.vcdp.util.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +27,10 @@ public class ProjectService {
 
     private final ProjectMapper projectMapper;
     private final EcuMapper ecuMapper;
-    private final EcuConfigMapper ecuConfigMapper;
+    private final EcuForwardInfoMapper ecuForwardInfoMapper;
+    private final CanInterfaceMapper canInterfaceMapper;
+    private final LinInterfaceMapper linInterfaceMapper;
+    private final EthInterfaceMapper ethInterfaceMapper;
     private final SnowflakeIdGenerator snowflakeIdGenerator;
 
     public PageResult<Project> listProjects(Integer page, Integer size) {
@@ -87,10 +93,10 @@ public class ProjectService {
     private void cascadeDeleteEcus(List<String> projectIds) {
         List<String> ecuIds = ecuMapper.findIdsByProjectIds(projectIds);
         if (ecuIds != null && !ecuIds.isEmpty()) {
-            ecuConfigMapper.deleteForwardInfoByEcuIds(ecuIds);
-            ecuConfigMapper.deleteCanInterfacesByEcuIds(ecuIds);
-            ecuConfigMapper.deleteLinInterfacesByEcuIds(ecuIds);
-            ecuConfigMapper.deleteEthInterfacesByEcuIds(ecuIds);
+            ecuForwardInfoMapper.deleteByEcuIds(ecuIds);
+            canInterfaceMapper.deleteByEcuIds(ecuIds);
+            linInterfaceMapper.deleteByEcuIds(ecuIds);
+            ethInterfaceMapper.deleteByEcuIds(ecuIds);
         }
         ecuMapper.deleteByProjectIds(projectIds);
     }

@@ -7,7 +7,6 @@
       </div>
       <div class="toolbar-actions">
         <el-button type="primary" :icon="Plus" @click="openCreateDialog">新增 ECU</el-button>
-        <el-button :icon="Refresh" @click="loadEcus">加载 ECU</el-button>
         <el-button type="danger" :icon="Delete" :disabled="selectedIds.length === 0" @click="handleBatchDelete">
           批量删除
         </el-button>
@@ -137,23 +136,23 @@
               新增 CAN 接口
             </el-button>
           </div>
-          <el-table v-if="canInterfaces.length > 0" :data="canInterfaces" border>
-            <el-table-column label="CAN接口名称" min-width="140">
+          <el-table v-if="canInterfaces.length > 0" :data="canInterfaces" border class="interface-table">
+            <el-table-column label="接口名称" width="168">
               <template #default="{ row }">
                 <el-input v-model="row.interfaceName" :disabled="isView" />
               </template>
             </el-table-column>
-            <el-table-column label="通道ID" width="130">
+            <el-table-column label="通道ID" min-width="120">
               <template #default="{ row }">
                 <el-input-number v-model="row.channelId" :disabled="isView" :min="0" controls-position="right" />
               </template>
             </el-table-column>
-            <el-table-column label="端口号" width="130">
+            <el-table-column label="端口号" min-width="120">
               <template #default="{ row }">
                 <el-input-number v-model="row.port" :disabled="isView" :min="0" controls-position="right" />
               </template>
             </el-table-column>
-            <el-table-column label="接口类型" width="140">
+            <el-table-column label="接口类型" min-width="140">
               <template #default="{ row }">
                 <el-select v-model="row.type" :disabled="isView" placeholder="请选择">
                   <el-option
@@ -165,7 +164,7 @@
                 </el-select>
               </template>
             </el-table-column>
-            <el-table-column label="连接类型" width="160">
+            <el-table-column label="连接类型" min-width="150">
               <template #default="{ row }">
                 <el-select v-model="row.connType" :disabled="isView" placeholder="请选择">
                   <el-option
@@ -177,7 +176,7 @@
                 </el-select>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="100">
+            <el-table-column label="操作" width="80" align="center">
               <template #default="{ $index }">
                 <el-button text type="danger" :disabled="isView" @click="removeCanInterface($index)">删除</el-button>
               </template>
@@ -192,23 +191,23 @@
               新增 LIN 接口
             </el-button>
           </div>
-          <el-table v-if="linInterfaces.length > 0" :data="linInterfaces" border>
-            <el-table-column label="LIN接口名称" min-width="160">
+          <el-table v-if="linInterfaces.length > 0" :data="linInterfaces" border class="interface-table">
+            <el-table-column label="接口名称" width="168">
               <template #default="{ row }">
                 <el-input v-model="row.interfaceName" :disabled="isView" />
               </template>
             </el-table-column>
-            <el-table-column label="通道ID" width="160">
+            <el-table-column label="通道ID" min-width="160">
               <template #default="{ row }">
                 <el-input-number v-model="row.channelId" :disabled="isView" :min="0" controls-position="right" />
               </template>
             </el-table-column>
-            <el-table-column label="端口号" width="160">
+            <el-table-column label="端口号" min-width="160">
               <template #default="{ row }">
                 <el-input-number v-model="row.port" :disabled="isView" :min="0" controls-position="right" />
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="100">
+            <el-table-column label="操作" width="80" align="center">
               <template #default="{ $index }">
                 <el-button text type="danger" :disabled="isView" @click="removeLinInterface($index)">删除</el-button>
               </template>
@@ -223,23 +222,23 @@
               新增 ETH 接口
             </el-button>
           </div>
-          <el-table v-if="ethInterfaces.length > 0" :data="ethInterfaces" border>
-            <el-table-column label="ETH接口名称" min-width="140">
+          <el-table v-if="ethInterfaces.length > 0" :data="ethInterfaces" border class="interface-table">
+            <el-table-column label="接口名称" width="168">
               <template #default="{ row }">
                 <el-input v-model="row.interfaceName" :disabled="isView" />
               </template>
             </el-table-column>
-            <el-table-column label="通道ID" width="130">
+            <el-table-column label="通道ID" min-width="130">
               <template #default="{ row }">
                 <el-input-number v-model="row.channelId" :disabled="isView" :min="0" controls-position="right" />
               </template>
             </el-table-column>
-            <el-table-column label="端口号" width="130">
+            <el-table-column label="端口号" min-width="130">
               <template #default="{ row }">
                 <el-input-number v-model="row.port" :disabled="isView" :min="0" controls-position="right" />
               </template>
             </el-table-column>
-            <el-table-column label="接口类型" width="140">
+            <el-table-column label="接口类型" min-width="150">
               <template #default="{ row }">
                 <el-select v-model="row.type" :disabled="isView" placeholder="请选择">
                   <el-option
@@ -251,7 +250,7 @@
                 </el-select>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="100">
+            <el-table-column label="操作" width="80" align="center">
               <template #default="{ $index }">
                 <el-button text type="danger" :disabled="isView" @click="removeEthInterface($index)">删除</el-button>
               </template>
@@ -273,7 +272,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Delete, Edit, Plus, Refresh, View } from '@element-plus/icons-vue';
+import { Delete, Edit, Plus, View } from '@element-plus/icons-vue';
 import {
   batchDeleteEcus,
   createEcu,
@@ -749,7 +748,6 @@ export default {
       Delete,
       Edit,
       Plus,
-      Refresh,
       View,
       activeTab,
       addCanInterface,
@@ -774,7 +772,6 @@ export default {
       handlePageChange,
       isView,
       linInterfaces,
-      loadEcus,
       openCreateDialog,
       openEditDialog,
       openViewDialog,
@@ -878,5 +875,15 @@ export default {
 
 .interface-toolbar {
   margin-bottom: 12px;
+}
+
+.interface-table :deep(.cell) {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.interface-table :deep(.el-input-number),
+.interface-table :deep(.el-select) {
+  width: 100%;
 }
 </style>

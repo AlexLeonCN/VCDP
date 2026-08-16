@@ -2,7 +2,7 @@ package com.neonnexus.vcdp.controller;
 
 import com.neonnexus.vcdp.common.PageResult;
 import com.neonnexus.vcdp.common.Result;
-import com.neonnexus.vcdp.entity.po.project.Project;
+import com.neonnexus.vcdp.entity.po.Project;
 import com.neonnexus.vcdp.service.ProjectService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

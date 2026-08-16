@@ -3,7 +3,7 @@ package com.neonnexus.vcdp.controller;
 import com.neonnexus.vcdp.common.PageResult;
 import com.neonnexus.vcdp.common.Result;
 import com.neonnexus.vcdp.entity.dto.EcuConfig;
-import com.neonnexus.vcdp.entity.po.project.Ecu;
+import com.neonnexus.vcdp.entity.po.Ecu;
 import com.neonnexus.vcdp.service.EcuService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

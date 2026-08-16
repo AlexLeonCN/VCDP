@@ -1,4 +1,4 @@
-package com.neonnexus.vcdp.entity.po.project;
+package com.neonnexus.vcdp.entity.po;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

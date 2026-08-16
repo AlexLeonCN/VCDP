@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.neonnexus.vcdm.mapper.ProjectMapper">
+<mapper namespace="com.neonnexus.vcdp.mapper.ProjectMapper">
 
-    <resultMap id="ProjectResultMap" type="com.neonnexus.vcdm.entity.po.project.Project">
+    <resultMap id="ProjectResultMap" type="com.neonnexus.vcdp.entity.po.project.Project">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="description" property="description"/>

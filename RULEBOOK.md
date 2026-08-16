@@ -71,6 +71,11 @@ VCDP 是一个轻量级本地单机工具，不是多人协同配置平台。
 - Controller 保持薄层，只做请求接收、参数转换和响应返回。
 - Service 承载业务规则和流程编排。
 - Mapper 只负责数据访问，不承载业务判断。
+- Mapper 必须按实体字段提供标准查询与删除接口：
+  - 凡实体具备主键 `id`，对应 Mapper 必须提供基于自身主键的查询、删除和批量删除：`findById`、`deleteById`、`deleteByIds`。
+  - 凡实体具备 `projectId`，对应 Mapper 必须提供基于 `projectId` 的查询、删除和批量删除：`findByProjectId`、`deleteByProjectId`、`deleteByProjectIds`。
+  - 凡实体具备 `ecuId`，对应 Mapper 必须提供基于 `ecuId` 的查询、删除和批量删除：`findByEcuId`、`deleteByEcuId`、`deleteByEcuIds`。
+  - 新增或调整 Mapper 时，先按实体字段补齐上述标准接口，再增加业务专用查询。
 - 公共响应结构继续使用 `Result`。
 - 业务异常继续使用统一异常处理方式。
 - 新增依赖前先确认是否真的必要，避免把轻量工具做重。

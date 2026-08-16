@@ -16,6 +16,8 @@ public interface EcuMapper {
 
     Ecu findById(@Param("id") String id);
 
+    List<Ecu> findByProjectId(@Param("projectId") String projectId);
+
     List<String> findIdsByProjectIds(@Param("projectIds") List<String> projectIds);
 
     long countByProjectIdAndName(@Param("projectId") String projectId,
@@ -44,7 +46,11 @@ public interface EcuMapper {
 
     int deleteById(@Param("id") String id);
 
+    int deleteByIds(@Param("ids") List<String> ids);
+
     int deleteBatchByProjectId(@Param("projectId") String projectId, @Param("ids") List<String> ids);
+
+    int deleteByProjectId(@Param("projectId") String projectId);
 
     int deleteByProjectIds(@Param("projectIds") List<String> projectIds);
 

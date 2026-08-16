@@ -11,13 +11,30 @@
         <result column="port" property="port"/>
     </resultMap>
 
+    <sql id="LinInterfaceColumns">
+        id,
+        project_id,
+        ecu_id,
+        interface_name,
+        channel_id,
+        port
+    </sql>
+
+    <select id="findById" resultMap="LinInterfaceResultMap">
+        SELECT <include refid="LinInterfaceColumns"/>
+        FROM ecu_lin_interface
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByProjectId" resultMap="LinInterfaceResultMap">
+        SELECT <include refid="LinInterfaceColumns"/>
+        FROM ecu_lin_interface
+        WHERE project_id = #{projectId}
+        ORDER BY id ASC
+    </select>
+
     <select id="findByEcuId" resultMap="LinInterfaceResultMap">
-        SELECT id,
-               project_id,
-               ecu_id,
-               interface_name,
-               channel_id,
-               port
+        SELECT <include refid="LinInterfaceColumns"/>
         FROM ecu_lin_interface
         WHERE ecu_id = #{ecuId}
         ORDER BY id ASC
@@ -42,6 +59,30 @@
              #{item.port})
         </foreach>
     </insert>
+
+    <delete id="deleteById">
+        DELETE FROM ecu_lin_interface WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        DELETE FROM ecu_lin_interface
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByProjectId">
+        DELETE FROM ecu_lin_interface WHERE project_id = #{projectId}
+    </delete>
+
+    <delete id="deleteByProjectIds">
+        DELETE FROM ecu_lin_interface
+        WHERE project_id IN
+        <foreach collection="projectIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
 
     <delete id="deleteByEcuId">
         DELETE FROM ecu_lin_interface WHERE ecu_id = #{ecuId}

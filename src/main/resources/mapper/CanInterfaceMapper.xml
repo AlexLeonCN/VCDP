@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neonnexus.vcdp.mapper.CanInterfaceMapper">
+
+    <resultMap id="CanInterfaceResultMap" type="com.neonnexus.vcdp.entity.po.project.CanInterface">
+        <id column="id" property="id"/>
+        <result column="project_id" property="projectId"/>
+        <result column="ecu_id" property="ecuId"/>
+        <result column="interface_name" property="interfaceName"/>
+        <result column="channel_id" property="channelId"/>
+        <result column="port" property="port"/>
+        <result column="can_type" property="type"/>
+        <result column="conn_type" property="connType"/>
+    </resultMap>
+
+    <select id="findByEcuId" resultMap="CanInterfaceResultMap">
+        SELECT id,
+               project_id,
+               ecu_id,
+               interface_name,
+               channel_id,
+               port,
+               can_type,
+               conn_type
+        FROM ecu_can_interface
+        WHERE ecu_id = #{ecuId}
+        ORDER BY id ASC
+    </select>
+
+    <insert id="insertBatch">
+        INSERT INTO ecu_can_interface (
+            id,
+            project_id,
+            ecu_id,
+            interface_name,
+            channel_id,
+            port,
+            can_type,
+            conn_type
+        )
+        VALUES
+        <foreach collection="items" item="item" separator=",">
+            (#{item.id},
+             #{item.projectId},
+             #{item.ecuId},
+             #{item.interfaceName},
+             #{item.channelId},
+             #{item.port},
+             #{item.type},
+             #{item.connType})
+        </foreach>
+    </insert>
+
+    <delete id="deleteByEcuId">
+        DELETE FROM ecu_can_interface WHERE ecu_id = #{ecuId}
+    </delete>
+
+    <delete id="deleteByEcuIds">
+        DELETE FROM ecu_can_interface
+        WHERE ecu_id IN
+        <foreach collection="ecuIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

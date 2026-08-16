@@ -11,9 +11,9 @@
 </parent>
 
 <groupId>com.neonnexus</groupId>
-<artifactId>vcdm</artifactId>
+<artifactId>vcdp</artifactId>
 <version>1.0.0</version>
-<name>vcdm</name>
+<name>vcdp</name>
 <description>Vehicle communication design platform</description>
 <packaging>jar</packaging>
 

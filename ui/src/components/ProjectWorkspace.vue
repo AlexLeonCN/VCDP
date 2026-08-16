@@ -18,15 +18,25 @@
             </div>
           </div>
 
-          <el-menu :default-active="activeMenu" class="workspace-menu" @select="handleMenuSelect">
+          <el-menu
+            :default-active="activeMenu"
+            class="workspace-menu"
+            @select="handleMenuSelect"
+          >
             <el-menu-item index="overview">
               <el-icon><Monitor /></el-icon>
               <span>概览</span>
             </el-menu-item>
-            <el-menu-item index="ecu">
-              <el-icon><Share /></el-icon>
-              <span>拓扑配置</span>
-            </el-menu-item>
+            <el-sub-menu index="topology">
+              <template #title>
+                <el-icon><Share /></el-icon>
+                <span>拓扑配置</span>
+              </template>
+              <el-menu-item index="ecu">
+                <el-icon><Cpu /></el-icon>
+                <span>ECU配置</span>
+              </el-menu-item>
+            </el-sub-menu>
           </el-menu>
         </el-aside>
 
@@ -44,7 +54,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { ArrowLeft, Monitor, Share } from '@element-plus/icons-vue';
+import { ArrowLeft, Cpu, Monitor, Share } from '@element-plus/icons-vue';
 import { fetchProject, toIdString } from '../api';
 
 export default {
@@ -89,7 +99,7 @@ export default {
     const handleMenuSelect = (index) => {
       if (index === 'ecu') {
         router.push(`/projects/${props.id}/ecu`);
-      } else {
+      } else if (index === 'overview') {
         router.push(`/projects/${props.id}`);
       }
     };
@@ -104,6 +114,7 @@ export default {
 
     return {
       ArrowLeft,
+      Cpu,
       Monitor,
       Share,
       activeMenu,
@@ -231,7 +242,8 @@ export default {
   background: transparent;
 }
 
-:deep(.workspace-menu .el-menu-item) {
+:deep(.workspace-menu .el-menu-item),
+:deep(.workspace-menu .el-sub-menu__title) {
   height: 44px;
   line-height: 44px;
   padding: 0 12px !important;
@@ -241,13 +253,18 @@ export default {
   position: relative;
 }
 
-:deep(.workspace-menu .el-menu-item:hover) {
+:deep(.workspace-menu .el-menu-item:hover),
+:deep(.workspace-menu .el-sub-menu__title:hover) {
   background: rgba(0, 212, 255, 0.06);
   color: var(--tech-text);
 }
 
 :deep(.workspace-menu .el-menu-item.is-active) {
   background: rgba(0, 212, 255, 0.12);
+  color: var(--tech-accent);
+}
+
+:deep(.workspace-menu .el-sub-menu.is-active > .el-sub-menu__title) {
   color: var(--tech-accent);
 }
 
@@ -260,6 +277,19 @@ export default {
   width: 3px;
   border-radius: 999px;
   background: var(--tech-accent);
+}
+
+:deep(.workspace-menu .el-sub-menu .el-menu) {
+  background: transparent;
+}
+
+:deep(.workspace-menu .el-sub-menu .el-menu-item) {
+  padding-left: 44px !important;
+  min-width: 0;
+}
+
+:deep(.workspace-menu .el-sub-menu__icon-arrow) {
+  color: var(--tech-muted);
 }
 
 .workspace-main {

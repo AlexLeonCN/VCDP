@@ -1,25 +1,30 @@
 <template>
   <div class="workspace-page">
-    <el-container class="workspace-layout">
+    <el-container class="workspace-layout" direction="vertical">
       <el-header class="workspace-header">
         <div class="header-left">
           <el-button text :icon="ArrowLeft" @click="goHome">返回工程列表</el-button>
-          <el-divider direction="vertical" />
-          <h1>{{ project?.name || '工程工作区' }}</h1>
         </div>
         <span class="project-scope" title="返回首页" @click="goHome">VCDP 车辆通信设计平台</span>
       </el-header>
 
-      <el-container>
-        <el-aside width="240px" class="workspace-aside">
-          <div class="menu-title">工程菜单</div>
+      <el-container class="workspace-body">
+        <el-aside width="228px" class="workspace-aside">
+          <div class="aside-project">
+            <div class="project-mark">{{ projectInitial }}</div>
+            <div class="project-meta">
+              <strong>{{ project?.name || '工程工作区' }}</strong>
+              <span>{{ project?.description || '车辆通信设计' }}</span>
+            </div>
+          </div>
+
           <el-menu :default-active="activeMenu" class="workspace-menu" @select="handleMenuSelect">
             <el-menu-item index="overview">
-              <el-icon><HomeFilled /></el-icon>
-              <span>工程概览</span>
+              <el-icon><Monitor /></el-icon>
+              <span>概览</span>
             </el-menu-item>
             <el-menu-item index="ecu">
-              <el-icon><Setting /></el-icon>
+              <el-icon><Share /></el-icon>
               <span>拓扑配置</span>
             </el-menu-item>
           </el-menu>
@@ -39,7 +44,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { ArrowLeft, HomeFilled, Setting } from '@element-plus/icons-vue';
+import { ArrowLeft, Monitor, Share } from '@element-plus/icons-vue';
 import { fetchProject, toIdString } from '../api';
 
 export default {
@@ -74,6 +79,11 @@ export default {
       router.push('/home');
     };
 
+    const projectInitial = computed(() => {
+      const name = project.value?.name?.trim();
+      return name ? name.slice(0, 1).toUpperCase() : '工';
+    });
+
     const activeMenu = computed(() => (route.path.endsWith('/ecu') ? 'ecu' : 'overview'));
 
     const handleMenuSelect = (index) => {
@@ -94,9 +104,10 @@ export default {
 
     return {
       ArrowLeft,
-      HomeFilled,
-      Setting,
+      Monitor,
+      Share,
       activeMenu,
+      projectInitial,
       goHome,
       handleMenuSelect,
       loading,
@@ -111,6 +122,11 @@ export default {
 .workspace-layout {
   min-height: 100vh;
   background: transparent;
+}
+
+.workspace-body {
+  flex: 1;
+  min-height: 0;
 }
 
 .workspace-header {
@@ -128,13 +144,6 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.header-left h1 {
-  margin: 0;
-  font-size: 20px;
-  color: var(--tech-text);
-  letter-spacing: 0.08em;
 }
 
 .project-scope {
@@ -157,33 +166,100 @@ export default {
 }
 
 .workspace-aside {
+  display: flex;
+  flex-direction: column;
   background: rgba(8, 14, 26, 0.72);
   border-right: 1px solid var(--tech-border);
-  padding: 16px 12px;
+  padding: 16px 10px;
 }
 
-.menu-title {
-  margin: 4px 12px 12px;
-  color: var(--tech-muted);
-  font-size: 13px;
+.aside-project {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 4px 16px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(0, 212, 255, 0.06);
+  border: 1px solid rgba(0, 212, 255, 0.14);
+}
+
+.project-mark {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(0, 212, 255, 0.16);
+  color: var(--tech-accent);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.project-meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.project-meta strong {
+  color: var(--tech-text);
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.04em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-meta span {
+  color: var(--tech-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .workspace-menu {
+  flex: 1;
   border-right: none;
   background: transparent;
 }
 
 :deep(.workspace-menu .el-menu-item) {
+  height: 44px;
+  line-height: 44px;
+  padding: 0 12px !important;
   color: var(--tech-muted);
   border-radius: 8px;
   margin-bottom: 4px;
+  position: relative;
+}
+
+:deep(.workspace-menu .el-menu-item:hover) {
+  background: rgba(0, 212, 255, 0.06);
+  color: var(--tech-text);
 }
 
 :deep(.workspace-menu .el-menu-item.is-active) {
   background: rgba(0, 212, 255, 0.12);
   color: var(--tech-accent);
+}
+
+:deep(.workspace-menu .el-menu-item.is-active::before) {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--tech-accent);
 }
 
 .workspace-main {
